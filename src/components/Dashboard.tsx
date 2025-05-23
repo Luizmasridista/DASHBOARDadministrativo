@@ -1,21 +1,12 @@
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
-import { toast } from "@/hooks/use-toast";
-
-interface FinancialData {
-  date: string;
-  receita: number;
-  despesa: number;
-  categoria?: string;
-}
+import { useSheetData } from "@/hooks/useSheetData";
 
 const Dashboard = () => {
-  const [data, setData] = useState<FinancialData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, refetch } = useSheetData();
 
   const COLORS = {
     receita: '#10B981', // Verde para receitas
@@ -23,21 +14,20 @@ const Dashboard = () => {
     lucro: '#3B82F6'    // Azul para lucro
   };
 
-  // Simulação de dados enquanto não há integração real
+  // Escutar eventos de conexão/desconexão da planilha
   useEffect(() => {
-    const mockData: FinancialData[] = [
-      { date: "2024-01", receita: 50000, despesa: 30000, categoria: "Vendas" },
-      { date: "2024-02", receita: 60000, despesa: 35000, categoria: "Serviços" },
-      { date: "2024-03", receita: 55000, despesa: 40000, categoria: "Vendas" },
-      { date: "2024-04", receita: 70000, despesa: 38000, categoria: "Vendas" },
-      { date: "2024-05", receita: 65000, despesa: 42000, categoria: "Serviços" },
-    ];
+    const handleSheetConnection = () => {
+      refetch();
+    };
 
-    setTimeout(() => {
-      setData(mockData);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    window.addEventListener('sheetConnected', handleSheetConnection);
+    window.addEventListener('sheetDisconnected', handleSheetConnection);
+
+    return () => {
+      window.removeEventListener('sheetConnected', handleSheetConnection);
+      window.removeEventListener('sheetDisconnected', handleSheetConnection);
+    };
+  }, [refetch]);
 
   const totalReceitas = data.reduce((sum, item) => sum + item.receita, 0);
   const totalDespesas = data.reduce((sum, item) => sum + item.despesa, 0);
@@ -45,8 +35,10 @@ const Dashboard = () => {
   const margemLucro = totalReceitas > 0 ? ((lucroLiquido / totalReceitas) * 100).toFixed(1) : "0";
 
   const receitasPorCategoria = data.reduce((acc, item) => {
-    const categoria = item.categoria || "Outros";
-    acc[categoria] = (acc[categoria] || 0) + item.receita;
+    if (item.receita > 0) {
+      const categoria = item.categoria || "Outros";
+      acc[categoria] = (acc[categoria] || 0) + item.receita;
+    }
     return acc;
   }, {} as Record<string, number>);
 
@@ -70,8 +62,23 @@ const Dashboard = () => {
     );
   }
 
+  const isUsingMockData = !localStorage.getItem('connectedSheetId');
+
   return (
     <div className="space-y-6">
+      {isUsingMockData && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 text-orange-800">
+              <AlertCircle className="w-5 h-5" />
+              <p className="text-sm">
+                <strong>Dados de demonstração:</strong> Conecte sua planilha do Google Sheets para ver dados reais.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
@@ -81,7 +88,9 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{formatCurrency(totalReceitas)}</div>
-            <p className="text-xs text-muted-foreground">Últimos 5 meses</p>
+            <p className="text-xs text-muted-foreground">
+              {isUsingMockData ? 'Últimos 5 meses (demo)' : 'Total da planilha'}
+            </p>
           </CardContent>
         </Card>
 
@@ -92,7 +101,9 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{formatCurrency(totalDespesas)}</div>
-            <p className="text-xs text-muted-foreground">Últimos 5 meses</p>
+            <p className="text-xs text-muted-foreground">
+              {isUsingMockData ? 'Últimos 5 meses (demo)' : 'Total da planilha'}
+            </p>
           </CardContent>
         </Card>
 
@@ -186,7 +197,7 @@ const Dashboard = () => {
       {/* Comparativo mensal */}
       <Card>
         <CardHeader>
-          <CardTitle>Comparativo Mensal</CardTitle>
+          <CardTitle>Comparativo por Período</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>

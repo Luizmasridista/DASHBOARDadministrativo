@@ -8,9 +8,9 @@ import { FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const ConnectSheet = () => {
-  const [sheetId, setSheetId] = useState("");
-  const [sheetRange, setSheetRange] = useState("A1:D100");
-  const [connected, setConnected] = useState(false);
+  const [sheetId, setSheetId] = useState(() => localStorage.getItem('connectedSheetId') || "");
+  const [sheetRange, setSheetRange] = useState(() => localStorage.getItem('connectedSheetRange') || "A1:D100");
+  const [connected, setConnected] = useState(() => localStorage.getItem('connectedSheetId') !== null);
   const [loading, setLoading] = useState(false);
 
   const API_KEY = "AIzaSyDMffuGHiDAx03cuiwLdUPoPZIbos8tSUE";
@@ -42,11 +42,18 @@ const ConnectSheet = () => {
       console.log("Dados recebidos:", data);
       
       if (data.values && data.values.length > 0) {
+        // Salvar dados de conexão no localStorage
+        localStorage.setItem('connectedSheetId', sheetId);
+        localStorage.setItem('connectedSheetRange', sheetRange);
+        
         setConnected(true);
         toast({
           title: "Sucesso!",
-          description: "Planilha conectada com sucesso",
+          description: "Planilha conectada com sucesso. O dashboard será atualizado automaticamente.",
         });
+        
+        // Disparar evento personalizado para notificar outros componentes
+        window.dispatchEvent(new CustomEvent('sheetConnected'));
       } else {
         throw new Error("Nenhum dado encontrado na planilha");
       }
@@ -64,8 +71,16 @@ const ConnectSheet = () => {
   };
 
   const handleDisconnect = () => {
+    // Remover dados de conexão do localStorage
+    localStorage.removeItem('connectedSheetId');
+    localStorage.removeItem('connectedSheetRange');
+    
     setConnected(false);
     setSheetId("");
+    
+    // Disparar evento personalizado para notificar outros componentes
+    window.dispatchEvent(new CustomEvent('sheetDisconnected'));
+    
     toast({
       title: "Desconectado",
       description: "Planilha desconectada com sucesso",
@@ -123,7 +138,7 @@ const ConnectSheet = () => {
               <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
               <h3 className="text-lg font-semibold text-green-600">Planilha Conectada!</h3>
               <p className="text-muted-foreground">
-                Sua planilha está conectada e os dados estão sendo sincronizados.
+                Sua planilha está conectada e os dados estão sendo sincronizados no dashboard.
               </p>
               <Button variant="outline" onClick={handleDisconnect}>
                 Desconectar
