@@ -16,16 +16,16 @@ const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
   ];
 
   return (
-    <div className="w-64 bg-slate-900 dark:bg-slate-950 min-h-screen text-white transition-colors duration-200">
-      <div className="p-6 border-b border-slate-700 dark:border-slate-800">
+    <div className="w-64 bg-sidebar min-h-screen text-sidebar-foreground transition-colors duration-200">
+      <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">K</span>
             </div>
             <div>
-              <h2 className="text-sm text-gray-300">agência</h2>
-              <h1 className="text-lg font-semibold">kaizen</h1>
+              <h2 className="text-sm text-sidebar-foreground/60">agência</h2>
+              <h1 className="text-lg font-semibold text-sidebar-foreground">kaizen</h1>
             </div>
           </div>
           <ThemeToggle />
@@ -38,8 +38,8 @@ const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
             key={item.id}
             onClick={() => onSectionChange(item.id)}
             className={cn(
-              "w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors",
-              activeSection === item.id ? "bg-slate-800 dark:bg-slate-900 border-r-2 border-red-600" : ""
+              "w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-sidebar-accent transition-colors",
+              activeSection === item.id ? "bg-sidebar-accent border-r-2 border-red-600" : ""
             )}
           >
             <item.icon className="w-5 h-5" />

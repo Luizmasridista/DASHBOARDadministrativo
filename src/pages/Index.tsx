@@ -22,19 +22,19 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-background">
       <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
       
       <div className="flex-1 flex flex-col">
-        <header className="bg-white border-b border-gray-200 p-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
+        <header className="bg-card border-b border-border p-6">
+          <h1 className="text-2xl font-semibold text-foreground">
             {activeSection === "dashboard" && "Painel Financeiro"}
             {activeSection === "connect" && "Conectar Planilha"}
             {activeSection === "settings" && "Configurações"}
           </h1>
         </header>
         
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-auto bg-background">
           {renderContent()}
         </main>
       </div>
