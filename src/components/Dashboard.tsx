@@ -1,17 +1,18 @@
-
 import { useEffect } from "react";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 import { useSheetData } from "@/hooks/useSheetData";
+import { FinancialItemsList } from "./FinancialItemsList";
 
 const Dashboard = () => {
   const { data, loading, error, refetch } = useSheetData();
 
+  // Modern color palette with CSS variables
   const COLORS = {
-    receita: '#10B981', // Verde para receitas
-    despesa: '#EF4444', // Vermelho para despesas
-    lucro: '#3B82F6'    // Azul para lucro
+    receita: 'hsl(var(--chart-receita))',
+    despesa: 'hsl(var(--chart-despesa))',
+    lucro: 'hsl(var(--chart-lucro))'
   };
 
   // Escutar eventos de conexão/desconexão da planilha
@@ -134,44 +135,68 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Gráficos */}
+      {/* Modern Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Receitas vs Despesas</CardTitle>
+        <Card className="border-0 shadow-sm bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-medium">Receitas vs Despesas</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis 
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip 
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }}
+                />
                 <Line 
                   type="monotone" 
                   dataKey="receita" 
-                  stroke={COLORS.receita} 
-                  strokeWidth={3}
+                  stroke={COLORS.receita}
+                  strokeWidth={2}
                   name="Receitas"
+                  dot={{ r: 4, fill: COLORS.receita }}
+                  activeDot={{ r: 6 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="despesa" 
-                  stroke={COLORS.despesa} 
-                  strokeWidth={3}
+                  stroke={COLORS.despesa}
+                  strokeWidth={2}
                   name="Despesas"
+                  dot={{ r: 4, fill: COLORS.despesa }}
+                  activeDot={{ r: 6 }}
                 />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Receitas por Categoria</CardTitle>
+        <Card className="border-0 shadow-sm bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-medium">Receitas por Categoria</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={pieData}
@@ -179,39 +204,87 @@ const Dashboard = () => {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  outerRadius={90}
                   fill="#8884d8"
                   dataKey="value"
+                  stroke="hsl(var(--background))"
+                  strokeWidth={2}
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? COLORS.receita : COLORS.lucro} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={index % 2 === 0 ? COLORS.receita : COLORS.lucro} 
+                    />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                <Tooltip 
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      {/* Comparativo mensal */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Comparativo por Período</CardTitle>
+      {/* Modern Bar Chart */}
+      <Card className="border-0 shadow-sm bg-card/50 backdrop-blur-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-medium">Comparativo por Período</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
-              <Bar dataKey="receita" fill={COLORS.receita} name="Receitas" />
-              <Bar dataKey="despesa" fill={COLORS.despesa} name="Despesas" />
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+              <XAxis 
+                dataKey="date" 
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis 
+                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip 
+                formatter={(value: number) => formatCurrency(value)}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}
+              />
+              <Bar 
+                dataKey="receita" 
+                fill={COLORS.receita} 
+                name="Receitas" 
+                radius={[4, 4, 0, 0]}
+                opacity={0.8}
+              />
+              <Bar 
+                dataKey="despesa" 
+                fill={COLORS.despesa} 
+                name="Despesas" 
+                radius={[4, 4, 0, 0]}
+                opacity={0.8}
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Financial Items List */}
+      <FinancialItemsList data={data} />
     </div>
   );
 };
