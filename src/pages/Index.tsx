@@ -1,9 +1,11 @@
 
 import { useState } from "react";
-import Sidebar from "@/components/Sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import Dashboard from "@/components/Dashboard";
 import ConnectSheet from "@/components/ConnectSheet";
 import Settings from "@/components/Settings";
+import { MobileHeader } from "@/components/MobileHeader";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -21,24 +23,31 @@ const Index = () => {
     }
   };
 
+  const getSectionTitle = () => {
+    switch (activeSection) {
+      case "dashboard":
+        return "Painel Financeiro";
+      case "connect":
+        return "Conectar Planilha";
+      case "settings":
+        return "Configurações";
+      default:
+        return "Painel Financeiro";
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      
-      <div className="flex-1 flex flex-col">
-        <header className="bg-card border-b border-border p-6">
-          <h1 className="text-2xl font-semibold text-foreground">
-            {activeSection === "dashboard" && "Painel Financeiro"}
-            {activeSection === "connect" && "Conectar Planilha"}
-            {activeSection === "settings" && "Configurações"}
-          </h1>
-        </header>
-        
-        <main className="flex-1 p-6 overflow-auto bg-background">
-          {renderContent()}
-        </main>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AppSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <SidebarInset className="flex-1">
+          <MobileHeader title={getSectionTitle()} />
+          <main className="flex-1 p-4 md:p-6 overflow-auto bg-background">
+            {renderContent()}
+          </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

@@ -9,10 +9,10 @@ interface BreakpointConfig {
 }
 
 const defaultBreakpoints: BreakpointConfig = {
-  mobile: 640,
-  tablet: 768,
-  desktop: 1024,
-  largeDesktop: 1280,
+  mobile: 768, // Ajustado para coincidir com o breakpoint do shadcn
+  tablet: 1024,
+  desktop: 1280,
+  largeDesktop: 1536,
 };
 
 export function useResponsive(customBreakpoints?: Partial<BreakpointConfig>) {
