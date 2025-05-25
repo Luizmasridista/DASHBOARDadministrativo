@@ -1,6 +1,7 @@
 
 import { DollarSign, TrendingUp, TrendingDown, Target } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface FinancialItem {
   date: string;
@@ -15,6 +16,8 @@ interface FinancialSummaryCardsProps {
 }
 
 export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryCardsProps) {
+  const { isMobile, isTablet } = useResponsive();
+  
   const totalReceitas = data.reduce((sum, item) => sum + item.receita, 0);
   const totalDespesas = data.reduce((sum, item) => sum + item.despesa, 0);
   const lucroLiquido = totalReceitas - totalDespesas;
@@ -22,6 +25,17 @@ export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryC
 
   const formatCurrency = (value: number) => {
     if (!isDataVisible) return "••••••";
+    
+    // Formato mais compacto para mobile
+    if (isMobile && Math.abs(value) >= 1000) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(value);
+    }
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
@@ -77,35 +91,35 @@ export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryC
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
       {cards.map((card, index) => (
         <Card 
           key={card.title}
           className={`relative overflow-hidden border-0 bg-gradient-to-br ${card.bgGradient} backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
         >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl bg-white/80 dark:bg-gray-800/80 flex items-center justify-center shadow-sm`}>
-                <card.icon className={`w-6 h-6 text-${card.color}-600 dark:text-${card.color}-400`} />
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-xl bg-white/80 dark:bg-gray-800/80 flex items-center justify-center shadow-sm`}>
+                <card.icon className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-${card.color}-600 dark:text-${card.color}-400`} />
               </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-medium bg-white/60 dark:bg-gray-800/60 ${
+              <div className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-white/60 dark:bg-gray-800/60 ${
                 card.trend === 'up' ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
               }`}>
                 {isDataVisible ? card.change : '••••'}
               </div>
             </div>
             
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300 tracking-wide">
+            <div className="space-y-1 sm:space-y-2">
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600 dark:text-gray-300 tracking-wide`}>
                 {card.title}
               </p>
-              <p className="text-2xl font-light text-gray-900 dark:text-white tracking-tight">
+              <p className={`${isMobile ? 'text-lg' : 'text-2xl'} font-light text-gray-900 dark:text-white tracking-tight break-words`}>
                 {card.value}
               </p>
             </div>
 
             {/* Decorative element */}
-            <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-white/20 dark:bg-gray-800/20 rounded-full blur-xl"></div>
+            <div className="absolute -right-4 -bottom-4 w-12 h-12 sm:w-16 sm:h-16 bg-white/20 dark:bg-gray-800/20 rounded-full blur-xl"></div>
           </CardContent>
         </Card>
       ))}

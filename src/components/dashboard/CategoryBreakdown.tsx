@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface FinancialItem {
   date: string;
@@ -14,6 +15,8 @@ interface CategoryBreakdownProps {
 }
 
 export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
+  const { isMobile, isTablet } = useResponsive();
+  
   const receitasPorCategoria = data.reduce((acc, item) => {
     if (item.receita > 0) {
       const categoria = item.categoria || "Outros";
@@ -33,6 +36,16 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
   ];
 
   const formatCurrency = (value: number) => {
+    // Formato compacto para dispositivos menores
+    if (isMobile && Math.abs(value) >= 1000) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(value);
+    }
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
@@ -45,11 +58,11 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
     if (active && payload && payload.length) {
       const data = payload[0];
       return (
-        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl">
-          <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-4 shadow-xl">
+          <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-900 dark:text-white mb-1`}>
             {data.payload.name}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 dark:text-gray-300`}>
             {formatCurrency(data.value)}
           </p>
         </div>
@@ -60,25 +73,30 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
 
   const totalReceitas = pieData.reduce((sum, item) => sum + item.value, 0);
 
+  // Altura responsiva do gráfico
+  const chartHeight = isMobile ? 200 : isTablet ? 240 : 280;
+  const outerRadius = isMobile ? 70 : isTablet ? 85 : 100;
+  const innerRadius = isMobile ? 28 : isTablet ? 34 : 40;
+
   return (
     <Card className="border-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm shadow-lg">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-light text-gray-900 dark:text-white">
+      <CardHeader className={`${isMobile ? 'pb-2' : 'pb-4'}`}>
+        <CardTitle className={`${isMobile ? 'text-base' : 'text-xl'} font-light text-gray-900 dark:text-white`}>
           Receitas por Categoria
         </CardTitle>
       </CardHeader>
       
-      <CardContent>
-        <div className="flex flex-col lg:flex-row items-center gap-6">
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height={280}>
+      <CardContent className={`${isMobile ? 'p-4' : 'p-6'} pt-0`}>
+        <div className={`flex ${isMobile ? 'flex-col' : 'flex-col lg:flex-row'} items-center gap-4 sm:gap-6`}>
+          <div className="flex-1 w-full">
+            <ResponsiveContainer width="100%" height={chartHeight}>
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
-                  innerRadius={40}
+                  outerRadius={outerRadius}
+                  innerRadius={innerRadius}
                   paddingAngle={2}
                   dataKey="value"
                   stroke="none"
@@ -95,25 +113,25 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
             </ResponsiveContainer>
           </div>
           
-          <div className="flex-1 space-y-3 max-h-80 overflow-y-auto">
+          <div className={`flex-1 space-y-2 sm:space-y-3 ${isMobile ? 'max-h-60' : 'max-h-80'} overflow-y-auto w-full`}>
             {pieData.map((entry, index) => {
               const percentage = ((entry.value / totalReceitas) * 100).toFixed(1);
               return (
-                <div key={entry.name} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <div className="flex items-center gap-3">
+                <div key={entry.name} className={`flex items-center justify-between ${isMobile ? 'p-2' : 'p-3'} rounded-lg bg-gray-50 dark:bg-gray-700/50`}>
+                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                     <div 
-                      className="w-4 h-4 rounded-full"
+                      className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} rounded-full flex-shrink-0`}
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-700 dark:text-gray-300 truncate`}>
                       {entry.name}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-900 dark:text-white`}>
                       {formatCurrency(entry.value)}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className={`${isMobile ? 'text-xs' : 'text-xs'} text-gray-500 dark:text-gray-400`}>
                       {percentage}%
                     </p>
                   </div>
