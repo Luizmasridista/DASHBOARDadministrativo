@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSheetData } from "@/hooks/useSheetData";
 import { useResponsive } from "@/hooks/useResponsive";
 import { FinancialSummaryCards } from "./dashboard/FinancialSummaryCards";
@@ -11,6 +11,9 @@ import { InteractiveChart } from "./dashboard/InteractiveChart";
 import { CategoryBreakdown } from "./dashboard/CategoryBreakdown";
 import { TrendAnalysis } from "./dashboard/TrendAnalysis";
 import { QuickActions } from "./dashboard/QuickActions";
+import { StrategicInsights } from "./dashboard/StrategicInsights";
+import { CashFlowProjection } from "./dashboard/CashFlowProjection";
+import { ActionableRecommendations } from "./dashboard/ActionableRecommendations";
 
 const Dashboard = () => {
   const { data, loading, error, refetch } = useSheetData();
@@ -18,8 +21,9 @@ const Dashboard = () => {
   const [dateFilter, setDateFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [isDataVisible, setIsDataVisible] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
 
-  // Escutar eventos de conexão/desconexão da planilha
+  // useEffect for sheet connection events
   useEffect(() => {
     const handleSheetConnection = () => {
       refetch();
@@ -49,10 +53,9 @@ const Dashboard = () => {
 
   const isUsingMockData = !localStorage.getItem('connectedSheetId');
 
-  // Filtrar dados baseado nos filtros selecionados
+  // filteredData and categories
   const filteredData = data.filter(item => {
     if (categoryFilter !== "all" && item.categoria !== categoryFilter) return false;
-    // Adicionar filtro de data aqui quando necessário
     return true;
   });
 
@@ -65,10 +68,10 @@ const Dashboard = () => {
         <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
           <div className="space-y-1 sm:space-y-2">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900 dark:text-white tracking-tight">
-              Dashboard Financeiro
+              Painel Executivo
             </h1>
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-light">
-              Visão geral dos seus dados financeiros
+              Insights estratégicos para tomada de decisão
             </p>
           </div>
 
@@ -116,7 +119,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Mock Data Warning - Responsive */}
+        {/* Mock Data Warning */}
         {isUsingMockData && (
           <Card className="border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 backdrop-blur-sm">
             <CardContent className="p-4 sm:p-6">
@@ -127,7 +130,7 @@ const Dashboard = () => {
                 <div className="flex-1">
                   <p className="font-medium text-sm sm:text-base">Dados de demonstração</p>
                   <p className="text-xs sm:text-sm opacity-80 mt-1">
-                    Conecte sua planilha do Google Sheets para visualizar dados reais
+                    Conecte sua planilha do Google Sheets para insights reais
                   </p>
                 </div>
               </div>
@@ -135,20 +138,55 @@ const Dashboard = () => {
           </Card>
         )}
 
-        {/* Financial Summary Cards - Responsive Grid */}
-        <FinancialSummaryCards data={filteredData} isDataVisible={isDataVisible} />
+        {/* Strategic Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4">
+            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="strategic">Estratégico</TabsTrigger>
+            <TabsTrigger value="projection">Projeções</TabsTrigger>
+            <TabsTrigger value="recommendations" className="hidden lg:flex">Ações</TabsTrigger>
+          </TabsList>
 
-        {/* Quick Actions - Responsive */}
-        <QuickActions />
+          <TabsContent value="overview" className="space-y-6 lg:space-y-8">
+            {/* Financial Summary Cards */}
+            <FinancialSummaryCards data={filteredData} isDataVisible={isDataVisible} />
 
-        {/* Charts Grid - Responsive Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
-          <InteractiveChart data={filteredData} />
-          <CategoryBreakdown data={filteredData} />
+            {/* Quick Actions */}
+            <QuickActions />
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+              <InteractiveChart data={filteredData} />
+              <CategoryBreakdown data={filteredData} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="strategic" className="space-y-6 lg:space-y-8">
+            {/* Strategic Insights */}
+            <StrategicInsights data={filteredData} />
+
+            {/* Trend Analysis */}
+            <TrendAnalysis data={filteredData} />
+          </TabsContent>
+
+          <TabsContent value="projection" className="space-y-6 lg:space-y-8">
+            {/* Cash Flow Projection */}
+            <CashFlowProjection data={filteredData} />
+
+            {/* Interactive Chart for comparison */}
+            <InteractiveChart data={filteredData} />
+          </TabsContent>
+
+          <TabsContent value="recommendations" className="space-y-6 lg:space-y-8">
+            {/* Actionable Recommendations */}
+            <ActionableRecommendations data={filteredData} />
+          </TabsContent>
+        </Tabs>
+
+        {/* Mobile Recommendations (always visible) */}
+        <div className="lg:hidden">
+          <ActionableRecommendations data={filteredData} />
         </div>
-
-        {/* Trend Analysis - Full Width */}
-        <TrendAnalysis data={filteredData} />
       </div>
     </div>
   );
