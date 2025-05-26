@@ -9,7 +9,108 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      despesas: {
+        Row: {
+          categoria: string
+          created_at: string
+          data_despesa: string
+          descricao: string | null
+          id: string
+          titulo: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          data_despesa?: string
+          descricao?: string | null
+          id?: string
+          titulo: string
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          data_despesa?: string
+          descricao?: string | null
+          id?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      receitas: {
+        Row: {
+          categoria: string
+          created_at: string
+          data_receita: string
+          descricao: string | null
+          id: string
+          titulo: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          data_receita?: string
+          descricao?: string | null
+          id?: string
+          titulo: string
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          data_receita?: string
+          descricao?: string | null
+          id?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      relatorios: {
+        Row: {
+          created_at: string
+          dados: Json
+          id: string
+          periodo_fim: string
+          periodo_inicio: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dados: Json
+          id?: string
+          periodo_fim: string
+          periodo_inicio: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dados?: Json
+          id?: string
+          periodo_fim?: string
+          periodo_inicio?: string
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
