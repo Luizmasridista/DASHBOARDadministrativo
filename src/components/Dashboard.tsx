@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,10 @@ import { QuickActions } from "./dashboard/QuickActions";
 import { StrategicInsights } from "./dashboard/StrategicInsights";
 import { CashFlowProjection } from "./dashboard/CashFlowProjection";
 import { ActionableRecommendations } from "./dashboard/ActionableRecommendations";
+import { BalanceEvolution } from "./dashboard/BalanceEvolution";
+import { ExpenseDistribution } from "./dashboard/ExpenseDistribution";
+import { MonthlyPerformance } from "./dashboard/MonthlyPerformance";
+import { PerformanceIndicators } from "./dashboard/PerformanceIndicators";
 
 const Dashboard = () => {
   const { data, loading, error, refetch } = useSheetData();
@@ -142,7 +147,7 @@ const Dashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="strategic">Estratégico</TabsTrigger>
+            <TabsTrigger value="analytics">Análises</TabsTrigger>
             <TabsTrigger value="projection">Projeções</TabsTrigger>
             <TabsTrigger value="recommendations" className="hidden lg:flex">Ações</TabsTrigger>
           </TabsList>
@@ -151,22 +156,33 @@ const Dashboard = () => {
             {/* Financial Summary Cards */}
             <FinancialSummaryCards data={filteredData} isDataVisible={isDataVisible} />
 
+            {/* Performance Indicators */}
+            <PerformanceIndicators data={filteredData} />
+
             {/* Quick Actions */}
             <QuickActions />
 
-            {/* Charts Grid */}
+            {/* Main Charts Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
-              <InteractiveChart data={filteredData} />
-              <CategoryBreakdown data={filteredData} />
+              <BalanceEvolution data={filteredData} />
+              <MonthlyPerformance data={filteredData} />
             </div>
           </TabsContent>
 
-          <TabsContent value="strategic" className="space-y-6 lg:space-y-8">
+          <TabsContent value="analytics" className="space-y-6 lg:space-y-8">
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+              <InteractiveChart data={filteredData} />
+              <ExpenseDistribution data={filteredData} />
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+              <CategoryBreakdown data={filteredData} />
+              <TrendAnalysis data={filteredData} />
+            </div>
+
             {/* Strategic Insights */}
             <StrategicInsights data={filteredData} />
-
-            {/* Trend Analysis */}
-            <TrendAnalysis data={filteredData} />
           </TabsContent>
 
           <TabsContent value="projection" className="space-y-6 lg:space-y-8">
@@ -174,7 +190,10 @@ const Dashboard = () => {
             <CashFlowProjection data={filteredData} />
 
             {/* Interactive Chart for comparison */}
-            <InteractiveChart data={filteredData} />
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+              <InteractiveChart data={filteredData} />
+              <BalanceEvolution data={filteredData} />
+            </div>
           </TabsContent>
 
           <TabsContent value="recommendations" className="space-y-6 lg:space-y-8">
