@@ -72,7 +72,14 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+        <CardHeader className="text-center space-y-4">
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
+              alt="Logo" 
+              className="h-16 w-auto"
+            />
+          </div>
           <CardTitle className="text-2xl font-light">Dashboard Financeiro</CardTitle>
           <CardDescription>
             Entre na sua conta ou crie uma nova para começar

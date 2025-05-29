@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +18,7 @@ import { BalanceEvolution } from "./dashboard/BalanceEvolution";
 import { ExpenseDistribution } from "./dashboard/ExpenseDistribution";
 import { MonthlyPerformance } from "./dashboard/MonthlyPerformance";
 import { PerformanceIndicators } from "./dashboard/PerformanceIndicators";
+import { CostCenterChart } from "./dashboard/CostCenterChart";
 
 const Dashboard = () => {
   const { data, loading, error, refetch } = useSheetData();
@@ -28,7 +28,6 @@ const Dashboard = () => {
   const [isDataVisible, setIsDataVisible] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
-  // useEffect for sheet connection events
   useEffect(() => {
     const handleSheetConnection = () => {
       refetch();
@@ -58,7 +57,6 @@ const Dashboard = () => {
 
   const isUsingMockData = !localStorage.getItem('connectedSheetId');
 
-  // filteredData and categories
   const filteredData = data.filter(item => {
     if (categoryFilter !== "all" && item.categoria !== categoryFilter) return false;
     return true;
@@ -69,7 +67,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
-        {/* Responsive Header */}
         <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
           <div className="space-y-1 sm:space-y-2">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900 dark:text-white tracking-tight">
@@ -80,7 +77,6 @@ const Dashboard = () => {
             </p>
           </div>
 
-          {/* Responsive Controls */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Button
               variant="outline"
@@ -124,7 +120,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Mock Data Warning */}
         {isUsingMockData && (
           <Card className="border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 backdrop-blur-sm">
             <CardContent className="p-4 sm:p-6">
@@ -153,16 +148,9 @@ const Dashboard = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 lg:space-y-8">
-            {/* Financial Summary Cards */}
             <FinancialSummaryCards data={filteredData} isDataVisible={isDataVisible} />
-
-            {/* Performance Indicators */}
             <PerformanceIndicators data={filteredData} />
-
-            {/* Quick Actions */}
             <QuickActions />
-
-            {/* Main Charts Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
               <BalanceEvolution data={filteredData} />
               <MonthlyPerformance data={filteredData} />
@@ -170,7 +158,6 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6 lg:space-y-8">
-            {/* Charts Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
               <InteractiveChart data={filteredData} />
               <ExpenseDistribution data={filteredData} />
@@ -178,18 +165,17 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
               <CategoryBreakdown data={filteredData} />
-              <TrendAnalysis data={filteredData} />
+              <CostCenterChart data={filteredData} />
             </div>
 
-            {/* Strategic Insights */}
-            <StrategicInsights data={filteredData} />
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+              <TrendAnalysis data={filteredData} />
+              <StrategicInsights data={filteredData} />
+            </div>
           </TabsContent>
 
           <TabsContent value="projection" className="space-y-6 lg:space-y-8">
-            {/* Cash Flow Projection */}
             <CashFlowProjection data={filteredData} />
-
-            {/* Interactive Chart for comparison */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
               <InteractiveChart data={filteredData} />
               <BalanceEvolution data={filteredData} />
@@ -197,7 +183,6 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="recommendations" className="space-y-6 lg:space-y-8">
-            {/* Actionable Recommendations */}
             <ActionableRecommendations data={filteredData} />
           </TabsContent>
         </Tabs>
