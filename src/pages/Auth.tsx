@@ -70,70 +70,105 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <Card className="w-full max-w-md bg-slate-800/90 backdrop-blur-sm border-slate-700 shadow-2xl">
+        <CardHeader className="text-center space-y-6 pb-8">
           <div className="flex justify-center">
-            <img 
-              src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
-              alt="Logo" 
-              className="h-16 w-auto"
-            />
+            <div className="bg-white/10 backdrop-blur-sm rounded-full p-4 border border-white/20">
+              <img 
+                src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
+                alt="Logo da Empresa" 
+                className="h-16 w-auto"
+              />
+            </div>
           </div>
-          <CardTitle className="text-2xl font-light">Dashboard Financeiro</CardTitle>
-          <CardDescription>
-            Entre na sua conta ou crie uma nova para começar
-          </CardDescription>
+          <div className="space-y-2">
+            <CardTitle className="text-3xl font-light text-white">
+              Dashboard Financeiro
+            </CardTitle>
+            <CardDescription className="text-slate-300 text-base">
+              Entre na sua conta ou crie uma nova para começar
+            </CardDescription>
+          </div>
         </CardHeader>
-        <CardContent>
+        
+        <CardContent className="space-y-6">
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Criar Conta</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 border border-slate-600">
+              <TabsTrigger 
+                value="signin" 
+                className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white"
+              >
+                Entrar
+              </TabsTrigger>
+              <TabsTrigger 
+                value="signup"
+                className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white"
+              >
+                Criar Conta
+              </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="signin">
+            <TabsContent value="signin" className="mt-6">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-slate-200 font-medium">
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-slate-500 focus:ring-slate-500"
+                    placeholder="seu@email.com"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha</Label>
+                  <Label htmlFor="password" className="text-slate-200 font-medium">
+                    Senha
+                  </Label>
                   <Input
                     id="password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-slate-500 focus:ring-slate-500"
+                    placeholder="••••••••"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 mt-6" 
+                  disabled={loading}
+                >
                   {loading ? "Entrando..." : "Entrar"}
                 </Button>
               </form>
             </TabsContent>
             
-            <TabsContent value="signup">
+            <TabsContent value="signup" className="mt-6">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-email" className="text-slate-200 font-medium">
+                    Email
+                  </Label>
                   <Input
                     id="signup-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-slate-500 focus:ring-slate-500"
+                    placeholder="seu@email.com"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Senha</Label>
+                  <Label htmlFor="signup-password" className="text-slate-200 font-medium">
+                    Senha
+                  </Label>
                   <Input
                     id="signup-password"
                     type="password"
@@ -141,9 +176,15 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-slate-500 focus:ring-slate-500"
+                    placeholder="••••••••"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 mt-6" 
+                  disabled={loading}
+                >
                   {loading ? "Criando conta..." : "Criar Conta"}
                 </Button>
               </form>
