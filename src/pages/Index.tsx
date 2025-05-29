@@ -7,6 +7,7 @@ import Dashboard from "@/components/Dashboard";
 import ConnectSheet from "@/components/ConnectSheet";
 import Settings from "@/components/Settings";
 import { MobileHeader } from "@/components/MobileHeader";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
@@ -67,10 +68,13 @@ const Index = () => {
           <MobileHeader title={getSectionTitle()} />
           <main className="flex-1 p-4 md:p-6 overflow-auto bg-background">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-sm text-gray-600">Bem-vindo, {user.email}</span>
-              <Button variant="outline" size="sm" onClick={signOut}>
-                Sair
-              </Button>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Bem-vindo, {user.email}</span>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  Sair
+                </Button>
+              </div>
             </div>
             {renderContent()}
           </main>
