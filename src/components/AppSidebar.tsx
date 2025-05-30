@@ -21,6 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useTheme } from "@/components/ThemeProvider"
 
 // Menu items.
 const items = [
@@ -50,6 +51,8 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) {
+  const { theme } = useTheme();
+  
   return (
     <Sidebar>
       <SidebarHeader className="p-6 border-b border-sidebar-border">
@@ -57,7 +60,7 @@ export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) 
           <img 
             src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
             alt="Logo" 
-            className="h-10 w-auto"
+            className={`h-10 w-auto ${theme === 'light' ? 'brightness-0' : ''}`}
           />
         </div>
       </SidebarHeader>
