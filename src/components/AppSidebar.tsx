@@ -1,16 +1,49 @@
 
-import { BarChart3, FileSpreadsheet, Settings } from "lucide-react";
+import {
+  Calendar,
+  Home,
+  Inbox,
+  Search,
+  Settings,
+  BarChart3,
+  FileSpreadsheet,
+  Building2,
+} from "lucide-react"
+
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { ThemeToggle } from "./ThemeToggle";
-import { useResponsive } from "@/hooks/useResponsive";
+} from "@/components/ui/sidebar"
+
+// Menu items.
+const items = [
+  {
+    title: "Painel",
+    url: "#",
+    icon: BarChart3,
+    id: "dashboard",
+  },
+  {
+    title: "Conectar Planilha",
+    url: "#",
+    icon: FileSpreadsheet,
+    id: "connect",
+  },
+  {
+    title: "Configurações",
+    url: "#",
+    icon: Settings,
+    id: "settings",
+  },
+]
 
 interface AppSidebarProps {
   activeSection: string;
@@ -18,57 +51,46 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) {
-  const { isMobile } = useResponsive();
-
-  const menuItems = [
-    { id: "dashboard", icon: BarChart3, label: "Painel" },
-    { id: "connect", icon: FileSpreadsheet, label: "Conectar Planilha" },
-    { id: "settings", icon: Settings, label: "Configurações" }
-  ];
-
   return (
-    <Sidebar variant="inset" className="border-r border-border/50">
-      <SidebarHeader className="border-b border-border/50 p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">K</span>
-            </div>
-            <div>
-              <h2 className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-                agência
-              </h2>
-              <h1 className="text-xl font-semibold text-foreground">
-                kaizen
-              </h1>
-            </div>
+    <Sidebar>
+      <SidebarHeader className="p-6 border-b border-sidebar-border">
+        <div className="flex items-center space-x-3">
+          <div className="bg-white/10 backdrop-blur-sm rounded-full p-2 border border-white/20">
+            <img 
+              src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
+              alt="Logo da Empresa" 
+              className="h-8 w-auto"
+            />
           </div>
-          {!isMobile && <ThemeToggle />}
+          <div>
+            <h2 className="text-sm text-sidebar-foreground/60">agência</h2>
+            <h1 className="text-lg font-semibold text-sidebar-foreground">kaizen</h1>
+          </div>
         </div>
       </SidebarHeader>
-
-      <SidebarContent className="px-3 py-4">
-        <SidebarMenu>
-          {menuItems.map((item) => (
-            <SidebarMenuItem key={item.id}>
-              <SidebarMenuButton
-                onClick={() => onSectionChange(item.id)}
-                isActive={activeSection === item.id}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-accent/50"
-              >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
-                <span className="truncate">{item.label}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild
+                    isActive={activeSection === item.id}
+                    onClick={() => onSectionChange(item.id)}
+                  >
+                    <button className="w-full flex items-center space-x-3">
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </button>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="p-4 border-t border-border/50">
-        <div className="text-xs text-muted-foreground text-center">
-          Kaizen Financial Dashboard
-        </div>
-      </SidebarFooter>
+      <SidebarFooter />
     </Sidebar>
-  );
+  )
 }
