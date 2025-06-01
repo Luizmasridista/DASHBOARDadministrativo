@@ -20,6 +20,8 @@ import { MonthlyPerformance } from "./dashboard/MonthlyPerformance";
 import { PerformanceIndicators } from "./dashboard/PerformanceIndicators";
 import { CostCenterChart } from "./dashboard/CostCenterChart";
 
+import { AIInsights } from "./dashboard/AIInsights";
+
 const Dashboard = () => {
   const { data, loading, error, refetch } = useSheetData();
   const { isMobile, isTablet, deviceType } = useResponsive();
@@ -140,9 +142,10 @@ const Dashboard = () => {
 
         {/* Strategic Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="analytics">Análises</TabsTrigger>
+            <TabsTrigger value="ai-insights">IA Insights</TabsTrigger>
             <TabsTrigger value="projection">Projeções</TabsTrigger>
             <TabsTrigger value="recommendations" className="hidden lg:flex">Ações</TabsTrigger>
           </TabsList>
@@ -172,6 +175,10 @@ const Dashboard = () => {
               <TrendAnalysis data={filteredData} />
               <StrategicInsights data={filteredData} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="ai-insights" className="space-y-6 lg:space-y-8">
+            <AIInsights data={filteredData} />
           </TabsContent>
 
           <TabsContent value="projection" className="space-y-6 lg:space-y-8">
