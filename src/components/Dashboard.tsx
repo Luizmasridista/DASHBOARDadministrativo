@@ -44,17 +44,6 @@ const Dashboard = () => {
     };
   }, [refetch]);
 
-  const handleAIBotActivate = () => {
-    setActiveTab("ai-insights");
-    // Smooth scroll to the AI Insights section
-    setTimeout(() => {
-      const aiInsightsSection = document.querySelector('[data-tab="ai-insights"]');
-      if (aiInsightsSection) {
-        aiInsightsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh] px-4">
@@ -80,7 +69,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       {/* Floating AI Bot */}
-      <FloatingAIBot onActivate={handleAIBotActivate} />
+      <FloatingAIBot />
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
         <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
