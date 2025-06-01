@@ -86,7 +86,7 @@ export function AIInsights({ data }: AIInsightsProps) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <selectedTypeData?.icon className="w-4 h-4" />
+                {selectedTypeData?.icon && React.createElement(selectedTypeData.icon, { className: "w-4 h-4" })}
                 Analisar
               </div>
             )}
@@ -106,7 +106,7 @@ export function AIInsights({ data }: AIInsightsProps) {
         {analysis && (
           <div className="p-6 rounded-lg bg-white/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-3">
-              {selectedTypeData?.icon && <selectedTypeData.icon className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
+              {selectedTypeData?.icon && React.createElement(selectedTypeData.icon, { className: "w-5 h-5 text-purple-600 dark:text-purple-400" })}
               <h3 className="font-semibold text-gray-900 dark:text-white">
                 {selectedTypeData?.label}
               </h3>
