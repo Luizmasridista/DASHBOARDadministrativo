@@ -19,18 +19,17 @@ serve(async (req) => {
   }
 
   try {
-    const { data, analysisType } = await req.json();
+    const { data, analysisType, userMessage } = await req.json();
     const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
 
     if (!googleApiKey) {
       throw new Error('Google API key not configured');
     }
 
-    // Prepare the data summary for AI analysis
-    const dataSummary = prepareDataSummary(data);
-    
-    // Create prompt based on analysis type
-    const prompt = createAnalysisPrompt(dataSummary, analysisType);
+    // Se há uma mensagem do usuário, criar prompt conversacional
+    const prompt = userMessage 
+      ? createConversationalPrompt(data, userMessage)
+      : createAnalysisPrompt(prepareDataSummary(data), analysisType);
 
     // Call Google Gemini API
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`, {
@@ -75,6 +74,34 @@ serve(async (req) => {
     );
   }
 });
+
+function createConversationalPrompt(data: FinancialData[], userMessage: string) {
+  const dataSummary = prepareDataSummary(data);
+  
+  return `
+    Você é um assistente financeiro especializado da Kaizen. Responda de forma conversacional e direta à pergunta do usuário.
+
+    Contexto dos dados financeiros disponíveis:
+    - Total de receitas: R$ ${dataSummary.totalReceitas.toLocaleString('pt-BR')}
+    - Total de despesas: R$ ${dataSummary.totalDespesas.toLocaleString('pt-BR')}
+    - Lucro líquido: R$ ${dataSummary.lucroLiquido.toLocaleString('pt-BR')}
+    - Margem de lucro: ${dataSummary.margemLucro.toFixed(2)}%
+    - Categorias principais: ${Object.keys(dataSummary.categorias).join(', ')}
+
+    Pergunta do usuário: "${userMessage}"
+
+    Instruções:
+    - Responda de forma direta e conversacional
+    - Use os dados financeiros apenas se forem relevantes para a pergunta
+    - Mantenha um tom amigável e profissional
+    - Se a pergunta não for sobre finanças, responda educadamente redirecionando para análises financeiras
+    - Limite sua resposta a 2-3 parágrafos
+    - Use português brasileiro
+    - Se for uma saudação simples, responda cordialmente e pergunte como pode ajudar
+
+    Responda à pergunta do usuário:
+  `;
+}
 
 function prepareDataSummary(data: FinancialData[]) {
   const totalReceitas = data.reduce((sum, item) => sum + item.receita, 0);

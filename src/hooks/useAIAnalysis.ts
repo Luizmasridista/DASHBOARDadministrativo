@@ -52,8 +52,50 @@ export function useAIAnalysis() {
     }
   };
 
+  const chatWithAI = async (data: FinancialData[], userMessage: string) => {
+    if (!userMessage.trim()) {
+      throw new Error('Mensagem é obrigatória');
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log('Enviando mensagem conversacional para IA:', { userMessage, hasData: !!data?.length });
+      
+      const { data: result, error } = await supabase.functions.invoke('ai-analysis', {
+        body: { 
+          data: data || [], 
+          userMessage: userMessage.trim(),
+          analysisType: 'general' 
+        }
+      });
+
+      console.log('Resposta da IA conversacional:', result);
+
+      if (error) {
+        console.error('Erro na edge function:', error);
+        throw new Error(error.message || 'Erro na análise AI');
+      }
+
+      if (!result || !result.analysis) {
+        throw new Error('Resposta inválida da análise AI');
+      }
+
+      return result.analysis;
+    } catch (err) {
+      console.error('Erro completo no chat com IA:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido na análise';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     analyzeData,
+    chatWithAI,
     loading,
     error,
     clearError: () => setError(null)

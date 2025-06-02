@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { analyzeData } = useAIAnalysis();
+  const { chatWithAI } = useAIAnalysis();
   const { data } = useSheetData();
 
   const scrollToBottom = () => {
@@ -61,30 +60,18 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
       console.log('Enviando mensagem para IA:', currentInput);
       console.log('Dados disponíveis:', data);
 
-      // Usar a análise AI real se há dados
-      if (data && data.length > 0) {
-        const analysis = await analyzeData(data, 'general');
-        console.log('Resposta da IA recebida:', analysis);
-        
-        const aiResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          content: analysis,
-          sender: 'ai',
-          timestamp: new Date()
-        };
+      // Usar o novo método de chat conversacional
+      const analysis = await chatWithAI(data || [], currentInput);
+      console.log('Resposta da IA recebida:', analysis);
+      
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: analysis,
+        sender: 'ai',
+        timestamp: new Date()
+      };
 
-        setMessages(prev => [...prev, aiResponse]);
-      } else {
-        // Resposta padrão quando não há dados
-        const aiResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          content: `Entendi sua pergunta: "${currentInput}". No momento, não tenho dados financeiros para analisar. Para obter insights personalizados, conecte sua planilha do Google Sheets na seção "Conectar Planilha". Assim poderei fornecer análises detalhadas sobre suas finanças.`,
-          sender: 'ai',
-          timestamp: new Date()
-        };
-
-        setMessages(prev => [...prev, aiResponse]);
-      }
+      setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       const errorMessage: Message = {
@@ -109,6 +96,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent side="right" className="w-[400px] sm:w-[500px] p-0 flex flex-col">
+        
         <SheetHeader className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
