@@ -24,16 +24,26 @@ export function useAIAnalysis() {
     setError(null);
 
     try {
+      console.log('Chamando edge function ai-analysis com dados:', { data, analysisType });
+      
       const { data: result, error } = await supabase.functions.invoke('ai-analysis', {
         body: { data, analysisType }
       });
 
+      console.log('Resposta da edge function:', result);
+
       if (error) {
+        console.error('Erro na edge function:', error);
         throw new Error(error.message || 'Erro na análise AI');
+      }
+
+      if (!result || !result.analysis) {
+        throw new Error('Resposta inválida da análise AI');
       }
 
       return result.analysis;
     } catch (err) {
+      console.error('Erro completo na análise AI:', err);
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido na análise';
       setError(errorMessage);
       throw err;

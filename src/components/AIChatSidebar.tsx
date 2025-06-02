@@ -53,26 +53,43 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage;
     setInputMessage('');
     setIsLoading(true);
 
     try {
-      // Simular resposta da IA
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: `Recebi sua pergunta: "${inputMessage}". Com base nos seus dados financeiros, posso fornecer insights personalizados. Que tipo de análise específica você gostaria de ver?`,
-        sender: 'ai',
-        timestamp: new Date()
-      };
+      console.log('Enviando mensagem para IA:', currentInput);
+      console.log('Dados disponíveis:', data);
 
-      setMessages(prev => [...prev, aiResponse]);
+      // Usar a análise AI real se há dados
+      if (data && data.length > 0) {
+        const analysis = await analyzeData(data, 'general');
+        console.log('Resposta da IA recebida:', analysis);
+        
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          content: analysis,
+          sender: 'ai',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, aiResponse]);
+      } else {
+        // Resposta padrão quando não há dados
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          content: `Entendi sua pergunta: "${currentInput}". No momento, não tenho dados financeiros para analisar. Para obter insights personalizados, conecte sua planilha do Google Sheets na seção "Conectar Planilha". Assim poderei fornecer análises detalhadas sobre suas finanças.`,
+          sender: 'ai',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, aiResponse]);
+      }
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.',
+        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Isso pode acontecer quando não consigo me conectar ao serviço de IA. Tente novamente em alguns instantes.',
         sender: 'ai',
         timestamp: new Date()
       };
@@ -128,7 +145,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
                     : "bg-white text-gray-900 border rounded-bl-md"
                 )}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 <p className={cn(
                   "text-xs mt-2 opacity-70",
                   message.sender === 'user' ? "text-blue-100" : "text-gray-500"
