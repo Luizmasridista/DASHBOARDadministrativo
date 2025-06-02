@@ -1,73 +1,64 @@
-# Welcome to your Lovable project
+Sheet Finance Focus
+Visão Geral
+O Sheet Finance Focus é uma aplicação web desenvolvida para facilitar o gerenciamento e análise de finanças pessoais ou empresariais, utilizando ferramentas modernas do ecossistema JavaScript/TypeScript. O projeto tem como objetivo fornecer uma interface intuitiva para organizar, visualizar e tomar decisões com base em dados financeiros.
 
-## Project info
+Tecnologias Utilizadas
+Vite: Ferramenta de build e desenvolvimento rápido para aplicações web modernas.
+TypeScript: Superset do JavaScript que adiciona tipagem estática ao código, proporcionando maior segurança e produtividade.
+React: Biblioteca para construção de interfaces de usuário baseadas em componentes.
+shadcn-ui: Coleção de componentes UI acessíveis e personalizáveis para React.
+Tailwind CSS: Framework utilitário para estilização rápida e consistente de interfaces.
+Estrutura do Projeto
+A estrutura principal do projeto é organizada da seguinte forma:
 
-**URL**: https://lovable.dev/projects/8ee9fe33-c5ae-4007-b793-10e1da33a748
+├── public/                 # Arquivos estáticos (imagens, favicon, etc)
+├── src/
+│   ├── components/         # Componentes reutilizáveis de UI
+│   ├── pages/              # Páginas principais da aplicação
+│   ├── hooks/              # Hooks customizados para lógica reutilizável
+│   ├── services/           # Integrações com APIs e regras de negócio
+│   ├── utils/              # Funções utilitárias
+│   ├── App.tsx             # Componente principal da aplicação
+│   └── main.tsx            # Ponto de entrada da aplicação
+├── tailwind.config.js      # Configuração do Tailwind CSS
+├── vite.config.ts          # Configuração do Vite
+├── package.json            # Dependências e scripts do projeto
+└── README.md               # Documentação do projeto
+Funcionalidades Técnicas
+Gerenciamento de Estado: Utilização de hooks do React (useState, useEffect, etc.) para controle do estado local e, se necessário, integração com soluções de gerenciamento global.
+Estilização Modular: Utilização de Tailwind CSS para criar interfaces responsivas e personalizáveis com rapidez.
+Componentização: Uso de componentes reutilizáveis desenvolvidos com shadcn-ui e React, promovendo consistência visual e reaproveitamento de código.
+Integração com APIs: Consumo de serviços externos ou integração com backends para leitura e persistência de dados financeiros.
+TypeScript: Garantia de tipagem em todos os módulos, reduzindo erros em tempo de execução.
+Desenvolvimento e Build Rápidos: Vite proporciona hot reload instantâneo, facilitando a iteração durante o desenvolvimento.
+Como Executar Localmente
+Clone o repositório:
 
-## How can I edit this code?
+git clone <URL_DO_REPOSITORIO>
+cd sheet-finance-focus
+Instale as dependências:
 
-There are several ways of editing your application.
+npm install
+Inicie o servidor de desenvolvimento:
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/8ee9fe33-c5ae-4007-b793-10e1da33a748) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
-```
+O projeto estará disponível em http://localhost:5173 (ou porta indicada no terminal).
 
-**Edit a file directly in GitHub**
+Como Fazer Deploy
+Você pode publicar o projeto diretamente pela plataforma Lovable (link do projeto). Basta acessar o painel do projeto, clicar em Share > Publish e seguir as instruções.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Domínio Personalizado
+É possível configurar um domínio próprio para a aplicação. No painel da Lovable, acesse Project > Settings > Domains e siga as instruções para conectar seu domínio.
 
-**Use GitHub Codespaces**
+Mais detalhes em: Guia de domínio customizado
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Contribuição
+Contribuições são bem-vindas! Siga os passos abaixo para contribuir:
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/8ee9fe33-c5ae-4007-b793-10e1da33a748) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Faça um fork do repositório.
+Crie uma branch para sua feature ou correção: git checkout -b minha-feature
+Faça o commit das suas alterações: git commit -m 'Minha contribuição'
+Faça push para a branch: git push origin minha-feature
+Abra um Pull Request detalhando suas alterações.
+Licença
+Este projeto está licenciado sob os termos da licença MIT.
