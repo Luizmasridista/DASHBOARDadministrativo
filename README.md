@@ -1,7 +1,7 @@
 # 🚀 Sheet Finance Focus
 
 ## 🧐 Visão Geral
-O **Sheet Finance Focus** é uma aplicação web desenvolvida para facilitar o gerenciamento e análise de finanças pessoais ou empresariais, utilizando ferramentas modernas do ecossistema JavaScript/TypeScript.
+O **Sheet Finance Focus** é uma aplicação web desenvolvida para facilitar o gerenciamento e análise de finanças pessoais ou empresariais, utilizando ferramentas modernas do ecossistema JavaScript[...]
 
 ---
 
@@ -63,20 +63,6 @@ A estrutura principal do projeto é organizada da seguinte forma:
    ```
 
 4. O projeto estará disponível em [http://localhost:5173](http://localhost:5173) (ou porta indicada no terminal).
-
----
-
-## 🌍 Como Fazer Deploy
-Você pode publicar o projeto diretamente pela plataforma **Lovable**:
-1. Acesse o painel do projeto.
-2. Clique em **Share** > **Publish** e siga as instruções.
-
-### 🌐 Domínio Personalizado
-É possível configurar um domínio próprio para a aplicação:
-1. No painel da Lovable, acesse **Project** > **Settings** > **Domains**.
-2. Siga as instruções para conectar seu domínio.
-
-Mais detalhes em: [Guia de domínio customizado](#).
 
 ---
 
