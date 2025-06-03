@@ -45,6 +45,48 @@ export type Database = {
         }
         Relationships: []
       }
+      google_sheets_connections: {
+        Row: {
+          api_key: string
+          created_at: string
+          description: string | null
+          id: string
+          last_used_at: string | null
+          project_name: string
+          quota_limit: number | null
+          quota_used: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_used_at?: string | null
+          project_name: string
+          quota_limit?: number | null
+          quota_used?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_used_at?: string | null
+          project_name?: string
+          quota_limit?: number | null
+          quota_used?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       receitas: {
         Row: {
           categoria: string
