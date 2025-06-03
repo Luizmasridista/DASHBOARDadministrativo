@@ -6,84 +6,135 @@ export function createEnhancedConversationalPrompt(
   userMessage: string, 
   analysis: AdvancedAnalysis
 ): string {
+  // Detectar perguntas sobre categoria de maior gasto
   const perguntasCategoria = [
     'maior categoria', 'maior despesa', 'maior gasto', 'categoria que mais gastei',
     'onde gastei mais', 'principal despesa', 'categoria principal', 'maior categoria de gasto',
-    'qual categoria', 'categoria de despesa', 'gasto maior', 'despesa principal'
+    'qual categoria', 'categoria de despesa', 'gasto maior', 'despesa principal',
+    'categoria mais', 'categoria qual mais', 'qual mais gerou', 'mais gerou despesa'
   ];
   
   const isPerguntaCategoria = perguntasCategoria.some(termo => 
     userMessage.toLowerCase().includes(termo)
   );
 
-  let contextEspecifico = '';
+  // Detectar perguntas sobre valores específicos
+  const perguntasValor = [
+    'quanto gastei', 'valor total', 'total de', 'soma de', 'quanto foi'
+  ];
+  
+  const isPerguntaValor = perguntasValor.some(termo => 
+    userMessage.toLowerCase().includes(termo)
+  );
+
+  let respostaEspecifica = '';
   
   if (isPerguntaCategoria && analysis.maiorCategoriaGasto) {
     const maior = analysis.maiorCategoriaGasto;
-    contextEspecifico = `
-    🎯 RESPOSTA DIRETA BASEADA NOS DADOS:
-    
-    A categoria com maior gasto é: ${maior.categoria}
-    Valor total: R$ ${maior.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    Representa ${maior.percentual.toFixed(1)}% do total de despesas
-    
-    📊 RANKING COMPLETO:
-    ${analysis.categoriasDespesasRanking.slice(0, 5).map((cat, index) => 
-      `${index + 1}º. ${cat.categoria}: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-    ).join('\n')}
+    respostaEspecifica = `
+🎯 RESPOSTA DIRETA:
+
+A categoria que mais gerou despesas é: **${maior.categoria}**
+• Valor total: R$ ${maior.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+• Representa ${maior.percentual.toFixed(1)}% do total de despesas
+• Total de transações: ${maior.transacoes}
+
+📊 Ranking completo de categorias por despesa:
+${analysis.categoriasDespesasRanking.slice(0, 5).map((cat, index) => 
+  `${index + 1}º. **${cat.categoria}**: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${cat.percentual.toFixed(1)}%)`
+).join('\n')}
     `;
   }
-  
+
+  // Gerar contexto dos dados disponíveis para análise
+  const contextoDados = `
+📊 DADOS ANALISADOS (${analysis.numeroTransacoes} transações):
+• Total de Receitas: R$ ${analysis.totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+• Total de Despesas: R$ ${analysis.totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+• Resultado Líquido: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+• Margem de Lucro: ${analysis.margemLucro.toFixed(1)}%
+
+🏆 CATEGORIA COM MAIOR DESPESA:
+${analysis.maiorCategoriaGasto ? 
+  `**${analysis.maiorCategoriaGasto.categoria}** - R$ ${analysis.maiorCategoriaGasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${analysis.maiorCategoriaGasto.percentual.toFixed(1)}%)` : 
+  'Nenhuma categoria de despesa identificada'}
+
+📋 TOP 5 CATEGORIAS POR DESPESA:
+${analysis.categoriasDespesasRanking.slice(0, 5).map((cat, index) => 
+  `${index + 1}º. ${cat.categoria}: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${cat.percentual.toFixed(1)}%)`
+).join('\n')}
+  `;
+
   return `
-    🤖 ASSISTENTE FINANCEIRO IA KAIZEN
+🤖 ASSISTENTE FINANCEIRO IA KAIZEN - MODO ANÁLISE DIRETA
 
-    📊 DADOS VALIDADOS (${analysis.numeroTransacoes} transações):
-    • Receitas: R$ ${analysis.totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    • Despesas: R$ ${analysis.totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    • Resultado: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+${contextoDados}
 
-    ${contextEspecifico}
+${respostaEspecifica}
 
-    ❓ PERGUNTA: "${userMessage}"
+❓ PERGUNTA DO USUÁRIO: "${userMessage}"
 
-    🎯 INSTRUÇÕES CRÍTICAS:
-    1. SEMPRE responda com dados EXATOS dos registros analisados
-    2. Para perguntas sobre "maior categoria", cite DIRETAMENTE o nome e valor
-    3. NUNCA diga "não é possível determinar" se os dados existem
-    4. Seja DIRETO e SUCINTO - máximo 2 parágrafos
-    5. Use os números EXATOS fornecidos acima
-    6. Se perguntado sobre categoria específica, responda com precisão
+🎯 INSTRUÇÕES CRÍTICAS PARA RESPOSTA:
 
-    RESPONDA AGORA com base nos dados fornecidos:
+1. **SEMPRE FORNECER DADOS ESPECÍFICOS**: Use EXATAMENTE os números fornecidos acima
+2. **SER DIRETO E ASSERTIVO**: Responda diretamente à pergunta sem evasivas
+3. **USAR OS DADOS REAIS**: Cite categorias, valores e percentuais EXATOS dos dados analisados
+4. **MÁXIMO 100 PALAVRAS**: Seja conciso e objetivo
+5. **FORMATO DE RESPOSTA**:
+   - Comece com a resposta direta
+   - Inclua o valor específico
+   - Mencione o percentual do total
+   - Adicione contexto relevante se necessário
+
+📌 EXEMPLOS DE RESPOSTAS CORRETAS:
+- Para "qual categoria mais gastou": "A categoria **[NOME]** foi a que mais gerou despesas, com R$ [VALOR] ([X]% do total)"
+- Para perguntas de valor: "O valor total foi R$ [VALOR EXATO]"
+- Para comparações: "A categoria [A] gastou R$ [X], enquanto [B] gastou R$ [Y]"
+
+⚠️ NUNCA DIGA:
+- "Não é possível determinar"
+- "Com base nos dados disponíveis, parece que..."
+- "Seria necessário analisar melhor"
+- Respostas vagas ou evasivas
+
+🚀 RESPONDA AGORA de forma DIRETA e ESPECÍFICA:
   `;
 }
 
 export function createEnhancedAnalysisPrompt(analysis: AdvancedAnalysis, analysisType: string): string {
   const baseContext = `
-    📊 DADOS FINANCEIROS CONSOLIDADOS:
-    💰 Receitas: R$ ${analysis.totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    💸 Despesas: R$ ${analysis.totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    📈 Resultado: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    📊 Margem: ${analysis.margemLucro.toFixed(1)}%
+📊 DADOS FINANCEIROS DETALHADOS:
+💰 Total de Receitas: R$ ${analysis.totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+💸 Total de Despesas: R$ ${analysis.totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+📈 Resultado Líquido: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+📊 Margem de Lucro: ${analysis.margemLucro.toFixed(1)}%
+📋 Total de Transações: ${analysis.numeroTransacoes}
     
-    🏆 MAIOR CATEGORIA DE GASTO: ${analysis.maiorCategoriaGasto ? 
-      `${analysis.maiorCategoriaGasto.categoria} - R$ ${analysis.maiorCategoriaGasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${analysis.maiorCategoriaGasto.percentual.toFixed(1)}%)` : 
-      'Não identificada'}
+🏆 CATEGORIA COM MAIOR DESPESA:
+${analysis.maiorCategoriaGasto ? 
+  `**${analysis.maiorCategoriaGasto.categoria}** - R$ ${analysis.maiorCategoriaGasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${analysis.maiorCategoriaGasto.percentual.toFixed(1)}% do total)` : 
+  'Nenhuma categoria identificada'}
       
-    📋 TOP 5 CATEGORIAS POR DESPESA:
-    ${analysis.categoriasDespesasRanking.slice(0, 5).map((cat, index) => 
-      `${index + 1}º. ${cat.categoria}: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${cat.percentual.toFixed(1)}%)`
-    ).join('\n')}
+📋 RANKING COMPLETO DE DESPESAS:
+${analysis.categoriasDespesasRanking.slice(0, 5).map((cat, index) => 
+  `${index + 1}º. **${cat.categoria}**: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${cat.percentual.toFixed(1)}%)`
+).join('\n')}
+
+📅 DADOS MENSAIS:
+${Object.entries(analysis.dadosMensais).map(([mes, dados]) => 
+  `${mes}: Receitas R$ ${dados.receitas.toLocaleString('pt-BR')} | Despesas R$ ${dados.despesas.toLocaleString('pt-BR')} | Saldo R$ ${dados.saldoMensal.toLocaleString('pt-BR')}`
+).join('\n')}
   `;
 
   const commonInstructions = `
-    🎯 DIRETRIZES OBRIGATÓRIAS:
-    - Use APENAS os dados fornecidos acima
-    - Seja DIRETO e OBJETIVO
-    - Cite números EXATOS
-    - Máximo 150 palavras
-    - Evite generalidades ou evasivas
-    - Português brasileiro
+🎯 DIRETRIZES OBRIGATÓRIAS:
+- Use EXCLUSIVAMENTE os dados fornecidos acima
+- Cite números EXATOS e específicos
+- Seja DIRETO e OBJETIVO
+- Máximo 120 palavras
+- Use português brasileiro
+- Evite generalidades - seja específico
+- Sempre mencione a categoria principal identificada
   `;
 
   switch (analysisType) {
@@ -91,42 +142,49 @@ export function createEnhancedAnalysisPrompt(analysis: AdvancedAnalysis, analysi
       return `${baseContext}
       
       ${commonInstructions}
-      🔍 Forneça 3-4 insights ESPECÍFICOS baseados nos dados.
-      Foque em padrões identificáveis e ações práticas.
-      Use emojis relevantes (📈📉⚠️✅🎯💡).`;
+      
+🔍 FORNEÇA 3-4 INSIGHTS ESPECÍFICOS:
+Baseie-se nos dados reais apresentados acima. Destaque a categoria **${analysis.maiorCategoriaGasto?.categoria || 'principal'}** e seu impacto.
+Inclua padrões identificáveis e ações práticas com valores específicos.
+Use emojis relevantes: 📈📉⚠️✅🎯💡`;
 
     case 'recommendations':
       return `${baseContext}
       
       ${commonInstructions}
-      🎯 Forneça 3-4 recomendações PRÁTICAS.
-      Base-se na maior categoria de gastos identificada.
-      Inclua ações específicas e mensuráveis.
-      Use emojis para ações (🚀💪🎯⚡️✨).`;
+      
+🎯 FORNEÇA 3-4 RECOMENDAÇÕES PRÁTICAS:
+Foque na categoria **${analysis.maiorCategoriaGasto?.categoria || 'principal'}** que representa ${analysis.maiorCategoriaGasto?.percentual.toFixed(1) || '0'}% das despesas.
+Inclua ações específicas com valores mensuráveis baseados nos dados reais.
+Use emojis para ações: 🚀💪🎯⚡️✨`;
 
     case 'trends':
       return `${baseContext}
       
       ${commonInstructions}
-      📊 Analise TENDÊNCIAS com base nos dados mensais.
-      Identifique padrões específicos nas categorias principais.
-      Use emojis para tendências (📈📉🔄⚠️📊).`;
+      
+📊 ANALISE TENDÊNCIAS COM BASE NOS DADOS:
+Identifique padrões específicos na categoria **${analysis.maiorCategoriaGasto?.categoria || 'principal'}** e outras categorias principais.
+Use os dados mensais fornecidos para identificar tendências concretas.
+Use emojis: 📈📉🔄⚠️📊`;
 
     case 'risks':
       return `${baseContext}
       
       ${commonInstructions}
-      ⚠️ Identifique 3-4 RISCOS específicos baseados nos dados.
-      Analise concentração de gastos e padrões preocupantes.
-      Para cada risco, sugira uma ação específica.
-      Use emojis de alerta (⚠️🚨💥) e soluções (✅🛡️💪).`;
+      
+⚠️ IDENTIFIQUE 3-4 RISCOS ESPECÍFICOS:
+Analise a concentração de ${analysis.maiorCategoriaGasto?.percentual.toFixed(1) || '0'}% em **${analysis.maiorCategoriaGasto?.categoria || 'uma categoria'}**.
+Para cada risco, sugira uma ação específica com base nos valores reais.
+Use emojis: ⚠️🚨💥 para riscos e ✅🛡️💪 para soluções`;
 
     default:
       return `${baseContext}
       
       ${commonInstructions}
-      📋 Análise COMPLETA integrando insights e recomendações.
-      Destaque a maior categoria de gastos e seu impacto.
-      Inclua 2-3 ações práticas específicas.`;
+      
+📋 ANÁLISE COMPLETA:
+Integre insights e recomendações destacando a categoria **${analysis.maiorCategoriaGasto?.categoria || 'principal'}** e seu impacto de R$ ${analysis.maiorCategoriaGasto?.valor.toLocaleString('pt-BR') || '0'}.
+Inclua 2-3 ações práticas específicas com valores mensuráveis.`;
   }
 }

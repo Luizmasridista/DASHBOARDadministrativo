@@ -2,14 +2,20 @@
 import { FinancialData, AdvancedAnalysis, CategoryAnalysis, MonthlyData } from './types.ts';
 
 export function performAdvancedDataAnalysis(data: FinancialData[]): AdvancedAnalysis {
-  console.log('Iniciando análise avançada dos dados:', data.length, 'registros');
+  console.log('🔍 Iniciando análise detalhada dos dados:', data.length, 'registros');
 
-  // Limpeza rigorosa dos dados
+  // Limpeza rigorosa e validação dos dados
   const cleanedData = data
     .filter(item => {
       const hasValidAmount = (item.receita > 0 || item.despesa > 0);
       const hasValidDate = item.date && item.date.length >= 7;
-      return item && hasValidAmount && hasValidDate;
+      const isValidItem = item && hasValidAmount && hasValidDate;
+      
+      if (!isValidItem) {
+        console.log('❌ Item inválido removido:', item);
+      }
+      
+      return isValidItem;
     })
     .map(item => ({
       ...item,
@@ -19,16 +25,20 @@ export function performAdvancedDataAnalysis(data: FinancialData[]): AdvancedAnal
       date: item.date || new Date().toISOString().substring(0, 7)
     }));
 
-  console.log('Dados após limpeza:', cleanedData.length, 'registros válidos');
+  console.log('✅ Dados após limpeza:', cleanedData.length, 'registros válidos');
 
   // Cálculos financeiros básicos
   const totalReceitas = cleanedData.reduce((sum, item) => sum + item.receita, 0);
   const totalDespesas = cleanedData.reduce((sum, item) => sum + item.despesa, 0);
   const lucroLiquido = totalReceitas - totalDespesas;
   
-  console.log('Totais calculados:', { totalReceitas, totalDespesas, lucroLiquido });
+  console.log('💰 Totais calculados:', { 
+    receitas: totalReceitas, 
+    despesas: totalDespesas, 
+    lucro: lucroLiquido 
+  });
 
-  // Análise detalhada por categoria
+  // Análise DETALHADA por categoria com foco em DESPESAS
   const categoriaAnalysis = cleanedData.reduce((acc, item) => {
     const categoria = item.categoria;
     if (!acc[categoria]) {
@@ -46,42 +56,66 @@ export function performAdvancedDataAnalysis(data: FinancialData[]): AdvancedAnal
     return acc;
   }, {} as Record<string, CategoryAnalysis>);
 
-  // Calcular percentuais com validação
+  // Calcular percentuais com validação rigorosa
   Object.keys(categoriaAnalysis).forEach(categoria => {
-    categoriaAnalysis[categoria].percentualDespesas = 
-      totalDespesas > 0 ? (categoriaAnalysis[categoria].despesa / totalDespesas) * 100 : 0;
-    categoriaAnalysis[categoria].percentualReceitas = 
-      totalReceitas > 0 ? (categoriaAnalysis[categoria].receita / totalReceitas) * 100 : 0;
+    const catData = categoriaAnalysis[categoria];
+    catData.percentualDespesas = totalDespesas > 0 ? (catData.despesa / totalDespesas) * 100 : 0;
+    catData.percentualReceitas = totalReceitas > 0 ? (catData.receita / totalReceitas) * 100 : 0;
+    
+    console.log(`📊 Categoria "${categoria}":`, {
+      despesa: catData.despesa,
+      percentual: catData.percentualDespesas.toFixed(1) + '%',
+      transacoes: catData.transacoes
+    });
   });
 
-  // Ranking GARANTIDO de categorias por despesas
+  // RANKING GARANTIDO de categorias por despesas (ORDENAÇÃO CORRETA)
   const categoriasDespesasRanking = Object.entries(categoriaAnalysis)
-    .filter(([_, valores]) => valores.despesa > 0)
-    .sort(([_, a], [__, b]) => b.despesa - a.despesa)
-    .map(([categoria, valores], index) => ({
-      posicao: index + 1,
-      categoria,
-      valor: valores.despesa,
-      percentual: valores.percentualDespesas,
-      transacoes: valores.transacoes
-    }));
+    .filter(([categoria, valores]) => {
+      const temDespesa = valores.despesa > 0;
+      if (!temDespesa) {
+        console.log(`⚠️ Categoria "${categoria}" sem despesas - removida do ranking`);
+      }
+      return temDespesa;
+    })
+    .sort(([categoriaA, valoresA], [categoriaB, valoresB]) => {
+      // Ordenação DECRESCENTE por valor de despesa
+      const comparacao = valoresB.despesa - valoresA.despesa;
+      console.log(`🔄 Comparando: ${categoriaA} (${valoresA.despesa}) vs ${categoriaB} (${valoresB.despesa}) = ${comparacao}`);
+      return comparacao;
+    })
+    .map(([categoria, valores], index) => {
+      const rankingItem = {
+        posicao: index + 1,
+        categoria,
+        valor: valores.despesa,
+        percentual: valores.percentualDespesas,
+        transacoes: valores.transacoes
+      };
+      console.log(`🏆 Posição ${rankingItem.posicao}: ${categoria} - R$ ${rankingItem.valor.toLocaleString('pt-BR')}`);
+      return rankingItem;
+    });
 
-  console.log('Ranking de categorias:', categoriasDespesasRanking);
+  console.log('📈 Ranking final de categorias por despesa:', categoriasDespesasRanking);
 
-  // GARANTIR que sempre temos a maior categoria identificada
+  // GARANTIR identificação da maior categoria (CRÍTICO para respostas)
   const maiorCategoriaGasto = categoriasDespesasRanking.length > 0 ? 
     categoriasDespesasRanking[0] : 
     {
       posicao: 1,
-      categoria: 'Sem categorias de despesa',
+      categoria: 'Nenhuma categoria de despesa encontrada',
       valor: 0,
       percentual: 0,
       transacoes: 0
     };
 
-  console.log('Maior categoria identificada:', maiorCategoriaGasto);
+  console.log('🎯 MAIOR CATEGORIA IDENTIFICADA:', {
+    categoria: maiorCategoriaGasto.categoria,
+    valor: maiorCategoriaGasto.valor,
+    percentual: maiorCategoriaGasto.percentual.toFixed(1) + '%'
+  });
 
-  // Análise temporal
+  // Análise temporal (dados mensais)
   const dadosMensais = cleanedData.reduce((acc, item) => {
     const mes = item.date.substring(0, 7);
     if (!acc[mes]) {
@@ -107,7 +141,7 @@ export function performAdvancedDataAnalysis(data: FinancialData[]): AdvancedAnal
     categorias: Set<string>;
   }>);
 
-  // Converter Sets para arrays
+  // Converter Sets para arrays para serialização
   const dadosMensaisProcessados = Object.fromEntries(
     Object.entries(dadosMensais).map(([mes, dados]) => [
       mes,
@@ -132,33 +166,39 @@ export function performAdvancedDataAnalysis(data: FinancialData[]): AdvancedAnal
   };
 
   const resultado = {
-    // Dados básicos
+    // Dados financeiros básicos
     totalReceitas,
     totalDespesas,
     lucroLiquido,
     margemLucro: totalReceitas > 0 ? (lucroLiquido / totalReceitas) * 100 : 0,
     
-    // Análise por categoria (GARANTIDA)
+    // Análise por categoria (GARANTIDA e ORDENADA)
     categoriaAnalysis,
     categoriasDespesasRanking,
-    maiorCategoriaGasto,
+    maiorCategoriaGasto, // CRÍTICO: sempre disponível
     
     // Dados temporais
     dadosMensais: dadosMensaisProcessados,
     mesAtual,
     
-    // Métricas
+    // Métricas de validação
     numeroTransacoes: cleanedData.length,
     numeroMeses: meses.length,
     numeroCategorias: Object.keys(categoriaAnalysis).length,
     padroes,
     
-    // Validação
+    // Qualidade dos dados
     dadosLimpos: cleanedData.length,
     dadosOriginais: data.length,
     qualidadeDados: cleanedData.length / Math.max(data.length, 1)
   };
 
-  console.log('Análise completa finalizada:', resultado);
+  console.log('✅ ANÁLISE FINALIZADA:', {
+    transacoes: resultado.numeroTransacoes,
+    categorias: resultado.numeroCategorias,
+    maiorCategoria: resultado.maiorCategoriaGasto.categoria,
+    valorMaiorCategoria: resultado.maiorCategoriaGasto.valor
+  });
+
   return resultado;
 }
