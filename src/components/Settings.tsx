@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import { useSheetDataWithOAuth } from "@/hooks/useSheetDataWithOAuth";
 import APIConnectionsContainer from "./settings/APIConnectionsContainer";
 import ExportReportsSection from "./settings/ExportReportsSection";
 import SynchronizationSection from "./settings/SynchronizationSection";
-import GoogleSheetsAPISection from "./settings/GoogleSheetsAPISection";
 
 const Settings = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -113,8 +113,6 @@ const Settings = () => {
       <SynchronizationSection />
       
       <ExportReportsSection />
-      
-      <GoogleSheetsAPISection />
     </div>
   );
 };
