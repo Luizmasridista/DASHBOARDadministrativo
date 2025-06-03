@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,19 @@ const Settings = () => {
       description: "API principal para leitura de planilhas",
       lastUsed: "2024-06-03 14:30",
       quotaUsed: "1,234",
-      quotaLimit: "100,000"
+      quotaLimit: "100,000",
+      project: "integracao-relatorios-fin"
+    },
+    {
+      id: 2,
+      name: "Google Sheets API v4",
+      key: "AIzaSyBVFJQDkbI2MAgkS8OPYPGGz3IETLs0GQg",
+      status: "active",
+      description: "API secundária - Chave Sheets Dashboard",
+      lastUsed: "2024-06-03 14:25",
+      quotaUsed: "856",
+      quotaLimit: "100,000",
+      project: "Relatorios Financ Dash"
     }
   ];
 
@@ -105,12 +118,16 @@ const Settings = () => {
                       {getStatusBadge(api.status)}
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Chave API:</span>
                         <p className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-1 rounded">
                           {api.key.substring(0, 20)}...
                         </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Projeto:</span>
+                        <p className="text-xs">{api.project}</p>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Último uso:</span>
