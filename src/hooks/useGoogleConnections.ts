@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 export interface GoogleConnection {
@@ -16,24 +15,17 @@ export interface GoogleConnection {
 
 export const useGoogleConnections = () => {
   const [connections, setConnections] = useState<GoogleConnection[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchConnections = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      const { data, error: fetchError } = await supabase
-        .from('google_sheets_connections')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (fetchError) {
-        throw fetchError;
-      }
-
-      setConnections(data || []);
+      
+      // Temporarily return empty array until the table is created
+      console.log('Google connections table not yet available');
+      setConnections([]);
     } catch (error) {
       console.error('Error fetching connections:', error);
       setError(error instanceof Error ? error.message : 'Erro desconhecido');
@@ -49,12 +41,11 @@ export const useGoogleConnections = () => {
 
   const generateAuthUrl = async (clientId: string, redirectUri: string, projectName: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('google-oauth/auth-url', {
-        body: { clientId, redirectUri, projectName }
+      toast({
+        title: "Funcionalidade em desenvolvimento",
+        description: "A autenticação OAuth será disponibilizada em breve.",
       });
-
-      if (error) throw error;
-      return data.authUrl;
+      return '';
     } catch (error) {
       console.error('Error generating auth URL:', error);
       toast({
@@ -74,19 +65,11 @@ export const useGoogleConnections = () => {
     state?: string
   ) => {
     try {
-      const { data, error } = await supabase.functions.invoke('google-oauth/callback', {
-        body: { code, clientId, clientSecret, redirectUri, state }
-      });
-
-      if (error) throw error;
-
       toast({
-        title: "Conexão realizada com sucesso!",
-        description: `Conta ${data.connection.accountEmail} conectada.`,
+        title: "Funcionalidade em desenvolvimento",
+        description: "O callback OAuth será implementado em breve.",
       });
-
-      await fetchConnections();
-      return data.connection;
+      return null;
     } catch (error) {
       console.error('Error handling OAuth callback:', error);
       toast({
@@ -100,18 +83,10 @@ export const useGoogleConnections = () => {
 
   const refreshConnection = async (connectionId: string, clientId: string, clientSecret: string) => {
     try {
-      const { error } = await supabase.functions.invoke('google-oauth/refresh', {
-        body: { connectionId, clientId, clientSecret }
-      });
-
-      if (error) throw error;
-
       toast({
-        title: "Token atualizado",
-        description: "Token de acesso renovado com sucesso.",
+        title: "Funcionalidade em desenvolvimento",
+        description: "A renovação de tokens será implementada em breve.",
       });
-
-      await fetchConnections();
     } catch (error) {
       console.error('Error refreshing token:', error);
       toast({
@@ -125,18 +100,10 @@ export const useGoogleConnections = () => {
 
   const revokeConnection = async (connectionId: string) => {
     try {
-      const { error } = await supabase.functions.invoke('google-oauth/revoke', {
-        body: { connectionId }
-      });
-
-      if (error) throw error;
-
       toast({
-        title: "Conexão revogada",
-        description: "Acesso removido com sucesso.",
+        title: "Funcionalidade em desenvolvimento",
+        description: "A revogação de conexões será implementada em breve.",
       });
-
-      await fetchConnections();
     } catch (error) {
       console.error('Error revoking connection:', error);
       toast({
@@ -150,19 +117,10 @@ export const useGoogleConnections = () => {
 
   const deleteConnection = async (connectionId: string) => {
     try {
-      const { error } = await supabase
-        .from('google_sheets_connections')
-        .delete()
-        .eq('id', connectionId);
-
-      if (error) throw error;
-
       toast({
-        title: "Conexão removida",
-        description: "Conexão deletada com sucesso.",
+        title: "Funcionalidade em desenvolvimento",
+        description: "A exclusão de conexões será implementada em breve.",
       });
-
-      await fetchConnections();
     } catch (error) {
       console.error('Error deleting connection:', error);
       toast({

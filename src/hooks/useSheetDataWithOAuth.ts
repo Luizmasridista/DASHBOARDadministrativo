@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 interface SheetData {
@@ -27,21 +26,9 @@ export const useSheetDataWithOAuth = () => {
 
   const fetchConnections = async () => {
     try {
-      const { data: connectionsData, error: connectionsError } = await supabase
-        .from('google_sheets_connections')
-        .select('id, account_email, account_name, access_token, status')
-        .eq('status', 'active');
-
-      if (connectionsError) {
-        throw connectionsError;
-      }
-
-      setConnections(connectionsData || []);
-      
-      // Auto-select first active connection if none selected
-      if (!selectedConnection && connectionsData && connectionsData.length > 0) {
-        setSelectedConnection(connectionsData[0].id);
-      }
+      // Temporarily return empty array until the table is created
+      console.log('Google connections table not yet available');
+      setConnections([]);
     } catch (error) {
       console.error('Error fetching connections:', error);
     }
@@ -60,14 +47,6 @@ export const useSheetDataWithOAuth = () => {
         return;
       }
 
-      // Get the selected connection
-      const connection = connections.find(c => c.id === selectedConnection);
-      if (!connection) {
-        setError("Conexão não encontrada. Selecione uma conexão válida.");
-        setLoading(false);
-        return;
-      }
-
       // Get sheet configuration from localStorage (legacy compatibility)
       const savedSheetId = localStorage.getItem('connectedSheetId');
       const savedRange = localStorage.getItem('connectedSheetRange');
@@ -79,29 +58,15 @@ export const useSheetDataWithOAuth = () => {
         return;
       }
 
-      // Fetch data using the selected connection's access token
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${savedSheetId}/values/${savedRange || 'A1:D100'}`;
+      // For now, fallback to the old API key method until OAuth is fully implemented
+      const API_KEY = "AIzaSyDMffuGHiDAx03cuiwLdUPoPZIbos8tSUE";
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${savedSheetId}/values/${savedRange || 'A1:D100'}?key=${API_KEY}`;
       
-      console.log("Making API request with connection:", connection.account_email);
+      console.log("Making API request to:", url);
       
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${connection.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(url);
       
       if (!response.ok) {
-        if (response.status === 401) {
-          // Token expired, update connection status
-          await supabase
-            .from('google_sheets_connections')
-            .update({ status: 'expired' })
-            .eq('id', selectedConnection);
-          
-          throw new Error('Token de acesso expirado. Renove a conexão OAuth.');
-        }
-        
         const errorText = await response.text();
         console.error("API Error:", { status: response.status, statusText: response.statusText, errorText });
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
@@ -111,12 +76,6 @@ export const useSheetDataWithOAuth = () => {
       console.log("Dados recebidos da planilha:", sheetData);
       
       if (sheetData.values && sheetData.values.length > 1) {
-        // Update last_used_at for the connection
-        await supabase
-          .from('google_sheets_connections')
-          .update({ last_used_at: new Date().toISOString() })
-          .eq('id', selectedConnection);
-
         // Process the data
         const processedData = processSheetData(sheetData.values);
         console.log("Dados processados:", processedData);
@@ -125,7 +84,7 @@ export const useSheetDataWithOAuth = () => {
         
         toast({
           title: "Sucesso!",
-          description: `${processedData.length} registros carregados da planilha usando ${connection.account_email}.`,
+          description: `${processedData.length} registros carregados da planilha.`,
         });
       } else {
         throw new Error("Nenhum dado encontrado na planilha ou formato incorreto");

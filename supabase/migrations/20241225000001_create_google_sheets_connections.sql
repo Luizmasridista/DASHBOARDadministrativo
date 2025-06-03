@@ -1,9 +1,13 @@
 
 -- Create enum for connection status
-CREATE TYPE connection_status AS ENUM ('active', 'expired', 'revoked', 'error');
+DO $$ BEGIN
+    CREATE TYPE connection_status AS ENUM ('active', 'expired', 'revoked', 'error');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Create table for Google Sheets connections
-CREATE TABLE google_sheets_connections (
+CREATE TABLE IF NOT EXISTS google_sheets_connections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     account_email TEXT NOT NULL,
@@ -25,6 +29,12 @@ CREATE TABLE google_sheets_connections (
 -- Enable RLS
 ALTER TABLE google_sheets_connections ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own connections" ON google_sheets_connections;
+DROP POLICY IF EXISTS "Users can insert their own connections" ON google_sheets_connections;
+DROP POLICY IF EXISTS "Users can update their own connections" ON google_sheets_connections;
+DROP POLICY IF EXISTS "Users can delete their own connections" ON google_sheets_connections;
+
 -- Create RLS policies
 CREATE POLICY "Users can view their own connections" ON google_sheets_connections
     FOR SELECT TO authenticated
@@ -43,11 +53,11 @@ CREATE POLICY "Users can delete their own connections" ON google_sheets_connecti
     FOR DELETE TO authenticated
     USING (auth.uid() = user_id);
 
--- Create index for better performance
-CREATE INDEX idx_google_sheets_connections_user_id ON google_sheets_connections(user_id);
-CREATE INDEX idx_google_sheets_connections_status ON google_sheets_connections(status);
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_google_sheets_connections_user_id ON google_sheets_connections(user_id);
+CREATE INDEX IF NOT EXISTS idx_google_sheets_connections_status ON google_sheets_connections(status);
 
--- Create trigger for updating updated_at
+-- Create trigger function for updating updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -56,6 +66,10 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Drop existing trigger if it exists
+DROP TRIGGER IF EXISTS update_google_sheets_connections_updated_at ON google_sheets_connections;
+
+-- Create trigger for updating updated_at
 CREATE TRIGGER update_google_sheets_connections_updated_at
     BEFORE UPDATE ON google_sheets_connections
     FOR EACH ROW
