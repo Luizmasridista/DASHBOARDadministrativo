@@ -1,10 +1,11 @@
 
 import { useEffect, useState } from "react";
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff, Database } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff, Database, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useSheetData } from "@/hooks/useSheetData";
 import { useResponsive } from "@/hooks/useResponsive";
 import { FinancialSummaryCards } from "./dashboard/FinancialSummaryCards";
@@ -22,6 +23,7 @@ import { PerformanceIndicators } from "./dashboard/PerformanceIndicators";
 import { CostCenterChart } from "./dashboard/CostCenterChart";
 import { AIInsights } from "./dashboard/AIInsights";
 import { FloatingAIBot } from "./FloatingAIBot";
+import { SpreadsheetTutorial } from "./SpreadsheetTutorial";
 
 const Dashboard = () => {
   const { data, loading, error, refetch } = useSheetData();
@@ -33,6 +35,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const handleSheetConnection = () => {
+      console.log("Sheet connection event detected, refetching data...");
       refetch();
     };
 
@@ -59,7 +62,6 @@ const Dashboard = () => {
   }
 
   const hasRealData = data.length > 0;
-  const isUsingMockData = false; // Não usar mais dados mock
 
   const filteredData = data.filter(item => {
     if (categoryFilter !== "all" && item.categoria !== categoryFilter) return false;
@@ -101,14 +103,33 @@ const Dashboard = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
-                  onClick={() => window.location.href = '/connect-sheet'}
+                  onClick={() => {
+                    console.log("Navigating to connect-sheet section");
+                    // Mudar para a seção de conectar planilha
+                    window.dispatchEvent(new CustomEvent('navigateToConnect'));
+                  }}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  Conectar Planilha
+                  Carregar Planilha
                 </Button>
-                <Button variant="outline">
-                  Ver Tutorial
-                </Button>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4" />
+                      Tutorial
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Como Conectar sua Planilha</DialogTitle>
+                      <DialogDescription>
+                        Siga este tutorial passo a passo para conectar sua planilha do Google Sheets
+                      </DialogDescription>
+                    </DialogHeader>
+                    <SpreadsheetTutorial />
+                  </DialogContent>
+                </Dialog>
               </div>
               
               {error && (

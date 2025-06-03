@@ -22,6 +22,19 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
+  useEffect(() => {
+    const handleNavigateToConnect = () => {
+      console.log("Navigating to connect sheet section");
+      setActiveSection("connect");
+    };
+
+    window.addEventListener('navigateToConnect', handleNavigateToConnect);
+
+    return () => {
+      window.removeEventListener('navigateToConnect', handleNavigateToConnect);
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

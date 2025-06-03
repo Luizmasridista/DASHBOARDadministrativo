@@ -23,6 +23,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/connect-sheet" element={<Index />} />
               <Route path="/auth" element={
                 <Suspense fallback={<div>Loading...</div>}>
                   <Auth />
