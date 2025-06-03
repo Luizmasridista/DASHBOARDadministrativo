@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const GoogleSheetsAPISection = () => {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
   const [isManualRefresh, setIsManualRefresh] = useState(false);
   
   const { 
@@ -23,29 +23,19 @@ const GoogleSheetsAPISection = () => {
     refetch
   } = useGoogleSheetsConnections();
 
-  // Função para lidar com atualização manual
+  // Debug: Log connections para verificar o que está sendo retornado
+  useEffect(() => {
+    console.log("Conexões atuais no componente:", connections);
+    console.log("Loading:", connectionsLoading);
+    console.log("Error:", connectionsError);
+  }, [connections, connectionsLoading, connectionsError]);
+
   const handleRefresh = () => {
     setIsManualRefresh(true);
-    refetch();
-    
-    // Resetar o estado após 3 segundos
-    setTimeout(() => {
-      setIsManualRefresh(false);
-    }, 3000);
+    refetch().finally(() => {
+      setTimeout(() => setIsManualRefresh(false), 2000);
+    });
   };
-
-  // Função para tentar novamente em caso de erro
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
-    refetch();
-  };
-
-  // Resetar contador de retry quando as conexões são carregadas com sucesso
-  useEffect(() => {
-    if (connections.length > 0 && !connectionsLoading) {
-      setRetryCount(0);
-    }
-  }, [connections, connectionsLoading]);
 
   const handleRemoveConnection = async (connectionId: string, projectName: string) => {
     if (window.confirm(`Tem certeza que deseja remover a conexão "${projectName}"?`)) {
@@ -102,16 +92,7 @@ const GoogleSheetsAPISection = () => {
         );
       default:
         return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge variant="outline">Desconhecido</Badge>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Status desconhecido</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Badge variant="outline">Desconhecido</Badge>
         );
     }
   };
@@ -119,25 +100,26 @@ const GoogleSheetsAPISection = () => {
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return 'Nunca';
     
-    const date = new Date(dateString);
-    
-    // Verificar se a data é válida
-    if (isNaN(date.getTime())) return 'Data inválida';
-    
-    // Formatar a data no padrão brasileiro
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Data inválida';
+      
+      return new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    } catch {
+      return 'Data inválida';
+    }
   };
 
   const getQuotaPercentage = (used: number, limit: number) => {
     if (!limit) return 0;
     const percentage = (used / limit) * 100;
-    return Math.min(Math.max(percentage, 0), 100); // Garantir entre 0 e 100
+    return Math.min(Math.max(percentage, 0), 100);
   };
 
   const getQuotaColor = (percentage: number) => {
@@ -178,6 +160,13 @@ const GoogleSheetsAPISection = () => {
               Gerencie suas conexões com a API do Google Sheets.
             </p>
             
+            {/* Debug info - remover em produção */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
+                Debug: {connections.length} conexões carregadas, Loading: {connectionsLoading.toString()}, Error: {connectionsError || 'nenhum'}
+              </div>
+            )}
+            
             {/* Exibir erro, se houver */}
             {connectionsError && !connectionsLoading && (
               <Alert variant="destructive" className="mb-4">
@@ -188,11 +177,11 @@ const GoogleSheetsAPISection = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={handleRetry} 
+                    onClick={handleRefresh} 
                     className="self-start"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
-                    Tentar novamente ({retryCount}/3)
+                    Tentar novamente
                   </Button>
                 </AlertDescription>
               </Alert>
@@ -204,7 +193,7 @@ const GoogleSheetsAPISection = () => {
                 <p>Carregando conexões...</p>
                 <p className="text-xs mt-1">Buscando dados das APIs configuradas</p>
               </div>
-            ) : connections.length > 0 ? (
+            ) : connections && connections.length > 0 ? (
               <div className="space-y-4">
                 {connections.map((connection) => (
                   <div 

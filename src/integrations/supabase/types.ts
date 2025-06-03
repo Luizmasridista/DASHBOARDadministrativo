@@ -55,7 +55,7 @@ export type Database = {
           project_name: string
           quota_limit: number | null
           quota_used: number | null
-          status: string
+          status: Database["public"]["Enums"]["connection_status"]
           updated_at: string
           user_id: string
         }
@@ -68,7 +68,7 @@ export type Database = {
           project_name: string
           quota_limit?: number | null
           quota_used?: number | null
-          status?: string
+          status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
           user_id: string
         }
@@ -81,7 +81,7 @@ export type Database = {
           project_name?: string
           quota_limit?: number | null
           quota_used?: number | null
-          status?: string
+          status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
           user_id?: string
         }
@@ -161,7 +161,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      connection_status: "active" | "inactive" | "error"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -276,6 +276,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      connection_status: ["active", "inactive", "error"],
+    },
   },
 } as const
