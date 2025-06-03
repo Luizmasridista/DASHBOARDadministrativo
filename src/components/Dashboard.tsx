@@ -1,12 +1,12 @@
-
 import { useEffect, useState } from "react";
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff, Database, HelpCircle } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff, Database, HelpCircle, FileSpreadsheet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useIntegratedSheetData } from "@/hooks/useIntegratedSheetData";
+import { useSheetName } from "@/hooks/useSheetName";
 import { useResponsive } from "@/hooks/useResponsive";
 import { FinancialSummaryCards } from "./dashboard/FinancialSummaryCards";
 import { InteractiveChart } from "./dashboard/InteractiveChart";
@@ -27,6 +27,7 @@ import SpreadsheetTutorial from "./SpreadsheetTutorial";
 
 const Dashboard = () => {
   const { data, loading, error, refetch, activeConnection } = useIntegratedSheetData();
+  const { sheetName, loading: sheetNameLoading } = useSheetName();
   const { isMobile, isTablet, deviceType } = useResponsive();
   const [dateFilter, setDateFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -155,9 +156,19 @@ const Dashboard = () => {
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900 dark:text-white tracking-tight">
               Painel Executivo
             </h1>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-light">
-              Dados reais • Insights estratégicos em tempo real
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-light">
+                Dados reais • Insights estratégicos em tempo real
+              </p>
+              {sheetName && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-full">
+                  <FileSpreadsheet className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">
+                    {sheetNameLoading ? "Carregando..." : sheetName}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -211,7 +222,15 @@ const Dashboard = () => {
                 <Database className="w-4 h-4" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-sm sm:text-base">Dados reais conectados ✅</p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <p className="font-medium text-sm sm:text-base">Dados reais conectados ✅</p>
+                  {sheetName && (
+                    <div className="flex items-center gap-1 text-xs sm:text-sm bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded">
+                      <FileSpreadsheet className="w-3 h-3" />
+                      <span className="font-medium">{sheetNameLoading ? "..." : sheetName}</span>
+                    </div>
+                  )}
+                </div>
                 <p className="text-xs sm:text-sm opacity-80 mt-1">
                   Mostrando {data.length} registros da sua planilha
                   {activeConnection && (
