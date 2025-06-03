@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff, Database, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +22,7 @@ import { PerformanceIndicators } from "./dashboard/PerformanceIndicators";
 import { CostCenterChart } from "./dashboard/CostCenterChart";
 import { AIInsights } from "./dashboard/AIInsights";
 import { FloatingAIBot } from "./FloatingAIBot";
-import { SpreadsheetTutorial } from "./SpreadsheetTutorial";
+import SpreadsheetTutorial from "./SpreadsheetTutorial";
 
 const Dashboard = () => {
   const { data, loading, error, refetch } = useSheetData();
