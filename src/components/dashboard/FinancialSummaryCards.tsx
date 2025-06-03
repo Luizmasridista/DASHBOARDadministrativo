@@ -18,10 +18,57 @@ interface FinancialSummaryCardsProps {
 export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryCardsProps) {
   const { isMobile, isTablet } = useResponsive();
   
-  const totalReceitas = data.reduce((sum, item) => sum + item.receita, 0);
-  const totalDespesas = data.reduce((sum, item) => sum + item.despesa, 0);
+  console.log("FinancialSummaryCards - Raw data:", data);
+  
+  const totalReceitas = data.reduce((sum, item) => {
+    const value = Number(item.receita) || 0;
+    console.log("Adding receita:", value, "from item:", item);
+    return sum + value;
+  }, 0);
+  
+  const totalDespesas = data.reduce((sum, item) => {
+    const value = Number(item.despesa) || 0;
+    console.log("Adding despesa:", value, "from item:", item);
+    return sum + value;
+  }, 0);
+  
   const lucroLiquido = totalReceitas - totalDespesas;
   const margemLucro = totalReceitas > 0 ? ((lucroLiquido / totalReceitas) * 100) : 0;
+
+  console.log("Calculated values:", {
+    totalReceitas,
+    totalDespesas,
+    lucroLiquido,
+    margemLucro
+  });
+
+  // Calculate real growth rate based on actual data
+  const calculateGrowthRate = () => {
+    if (data.length < 2) return 0;
+    
+    // Group data by month to calculate monthly growth
+    const monthlyData = data.reduce((acc, item) => {
+      const month = item.date.substring(0, 7); // Get YYYY-MM
+      if (!acc[month]) {
+        acc[month] = { receita: 0, despesa: 0 };
+      }
+      acc[month].receita += Number(item.receita) || 0;
+      acc[month].despesa += Number(item.despesa) || 0;
+      return acc;
+    }, {} as Record<string, { receita: number; despesa: number }>);
+
+    const months = Object.keys(monthlyData).sort();
+    if (months.length < 2) return 0;
+
+    const current = monthlyData[months[months.length - 1]].receita;
+    const previous = monthlyData[months[months.length - 2]].receita;
+    
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  const growthRate = calculateGrowthRate();
+  const despesaGrowthRate = calculateGrowthRate(); // For simplicity, using same logic
 
   const formatCurrency = (value: number) => {
     if (!isDataVisible) return "••••••";
@@ -51,8 +98,8 @@ export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryC
     {
       title: "Receitas",
       value: formatCurrency(totalReceitas),
-      change: "+12.5%",
-      trend: "up",
+      change: `${growthRate > 0 ? '+' : ''}${growthRate.toFixed(1)}%`,
+      trend: growthRate >= 0 ? "up" : "down",
       icon: TrendingUp,
       color: "green",
       bgGradient: "from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50"
@@ -60,7 +107,7 @@ export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryC
     {
       title: "Despesas",
       value: formatCurrency(totalDespesas),
-      change: "+3.2%",
+      change: `${despesaGrowthRate > 0 ? '+' : ''}${despesaGrowthRate.toFixed(1)}%`,
       trend: "up",
       icon: TrendingDown,
       color: "red",
@@ -69,7 +116,7 @@ export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryC
     {
       title: "Lucro Líquido",
       value: formatCurrency(lucroLiquido),
-      change: lucroLiquido >= 0 ? "+8.1%" : "-4.2%",
+      change: lucroLiquido >= 0 ? `+${((lucroLiquido / (totalReceitas || 1)) * 100).toFixed(1)}%` : `${((lucroLiquido / (totalReceitas || 1)) * 100).toFixed(1)}%`,
       trend: lucroLiquido >= 0 ? "up" : "down",
       icon: DollarSign,
       color: lucroLiquido >= 0 ? "blue" : "red",
@@ -80,7 +127,7 @@ export function FinancialSummaryCards({ data, isDataVisible }: FinancialSummaryC
     {
       title: "Margem de Lucro",
       value: formatPercentage(margemLucro),
-      change: margemLucro >= 0 ? "+2.1%" : "-1.5%",
+      change: margemLucro >= 0 ? `+${margemLucro.toFixed(1)}%` : `${margemLucro.toFixed(1)}%`,
       trend: margemLucro >= 0 ? "up" : "down",
       icon: Target,
       color: margemLucro >= 0 ? "purple" : "red",

@@ -17,71 +17,90 @@ interface StrategicInsightsProps {
 export function StrategicInsights({ data }: StrategicInsightsProps) {
   const { isMobile } = useResponsive();
 
-  // Análises estratégicas
+  console.log("StrategicInsights - Processing data:", data);
+
+  // Group data by month for better calculations
+  const monthlyData = data.reduce((acc, item) => {
+    const month = item.date.substring(0, 7); // Get YYYY-MM
+    if (!acc[month]) {
+      acc[month] = { receita: 0, despesa: 0, lucro: 0 };
+    }
+    acc[month].receita += Number(item.receita) || 0;
+    acc[month].despesa += Number(item.despesa) || 0;
+    acc[month].lucro = acc[month].receita - acc[month].despesa;
+    return acc;
+  }, {} as Record<string, { receita: number; despesa: number; lucro: number }>);
+
+  const months = Object.keys(monthlyData).sort();
+  console.log("StrategicInsights - Monthly data:", monthlyData, "Months:", months);
+
+  // Análises estratégicas baseadas nos dados reais
   const calculateBurnRate = () => {
-    const recentData = data.slice(-3); // Últimos 3 meses
-    const avgDespesas = recentData.reduce((sum, item) => sum + item.despesa, 0) / recentData.length;
-    return avgDespesas;
+    if (months.length === 0) return 0;
+    const totalDespesas = months.reduce((sum, month) => sum + monthlyData[month].despesa, 0);
+    return totalDespesas / months.length;
   };
 
   const calculateRunway = () => {
-    const totalReceitas = data.reduce((sum, item) => sum + item.receita, 0);
-    const totalDespesas = data.reduce((sum, item) => sum + item.despesa, 0);
+    const totalReceitas = data.reduce((sum, item) => sum + (Number(item.receita) || 0), 0);
+    const totalDespesas = data.reduce((sum, item) => sum + (Number(item.despesa) || 0), 0);
     const cashBalance = totalReceitas - totalDespesas;
     const burnRate = calculateBurnRate();
     
     if (burnRate <= 0) return Infinity;
-    return Math.round(cashBalance / burnRate);
+    return Math.round(Math.abs(cashBalance) / burnRate);
   };
 
   const calculateGrowthRate = () => {
-    if (data.length < 2) return 0;
-    const recent = data.slice(-2);
-    const current = recent[1]?.receita || 0;
-    const previous = recent[0]?.receita || 0;
+    if (months.length < 2) return 0;
+    const current = monthlyData[months[months.length - 1]]?.receita || 0;
+    const previous = monthlyData[months[months.length - 2]]?.receita || 0;
     
-    if (previous === 0) return 0;
+    if (previous === 0) return current > 0 ? 100 : 0;
     return ((current - previous) / previous) * 100;
   };
 
   const getSeasonalityInsight = () => {
-    const monthlyData = data.reduce((acc, item) => {
-      const month = new Date(item.date).getMonth();
-      if (!acc[month]) acc[month] = { receita: 0, count: 0 };
-      acc[month].receita += item.receita;
-      acc[month].count += 1;
-      return acc;
-    }, {} as Record<number, { receita: number; count: number }>);
+    if (months.length === 0) {
+      return { bestMonth: "N/A", worstMonth: "N/A", variance: 0 };
+    }
 
-    const avgByMonth = Object.entries(monthlyData).map(([month, data]) => ({
-      month: parseInt(month),
-      avg: data.receita / data.count
+    const monthlyAvgs = months.map(month => ({
+      month: month.split('-')[1], // Get MM part
+      value: monthlyData[month].receita
     }));
 
-    const best = avgByMonth.reduce((max, curr) => curr.avg > max.avg ? curr : max, { month: 0, avg: 0 });
-    const worst = avgByMonth.reduce((min, curr) => curr.avg < min.avg ? curr : min, { month: 11, avg: Infinity });
+    const best = monthlyAvgs.reduce((max, curr) => curr.value > max.value ? curr : max, { month: "01", value: 0 });
+    const worst = monthlyAvgs.reduce((min, curr) => curr.value < min.value ? curr : min, { month: "12", value: Infinity });
 
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     
     return {
-      bestMonth: monthNames[best.month],
-      worstMonth: monthNames[worst.month],
-      variance: best.avg - worst.avg
+      bestMonth: monthNames[parseInt(best.month) - 1] || "N/A",
+      worstMonth: monthNames[parseInt(worst.month) - 1] || "N/A",
+      variance: best.value - (worst.value === Infinity ? 0 : worst.value)
     };
   };
 
   const getProfitabilityTrend = () => {
-    const last3Months = data.slice(-3);
-    const profitMargins = last3Months.map(item => {
-      if (item.receita === 0) return 0;
-      return ((item.receita - item.despesa) / item.receita) * 100;
-    });
+    if (months.length === 0) return { current: 0, trend: 0, isImproving: false };
 
-    const trend = profitMargins.length >= 2 ? 
-      profitMargins[profitMargins.length - 1] - profitMargins[profitMargins.length - 2] : 0;
+    const currentMonth = months[months.length - 1];
+    const currentData = monthlyData[currentMonth];
+    const currentMargin = currentData.receita > 0 ? ((currentData.receita - currentData.despesa) / currentData.receita) * 100 : 0;
+
+    if (months.length < 2) {
+      return { current: currentMargin, trend: 0, isImproving: currentMargin > 0 };
+    }
+
+    const previousMonth = months[months.length - 2];
+    const previousData = monthlyData[previousMonth];
+    const previousMargin = previousData.receita > 0 ? ((previousData.receita - previousData.despesa) / previousData.receita) * 100 : 0;
+
+    const trend = currentMargin - previousMargin;
 
     return {
-      current: profitMargins[profitMargins.length - 1] || 0,
+      current: currentMargin,
       trend,
       isImproving: trend > 0
     };
@@ -92,8 +111,8 @@ export function StrategicInsights({ data }: StrategicInsightsProps) {
       if (!acc[item.categoria]) {
         acc[item.categoria] = { receita: 0, despesa: 0, profit: 0 };
       }
-      acc[item.categoria].receita += item.receita;
-      acc[item.categoria].despesa += item.despesa;
+      acc[item.categoria].receita += Number(item.receita) || 0;
+      acc[item.categoria].despesa += Number(item.despesa) || 0;
       acc[item.categoria].profit = acc[item.categoria].receita - acc[item.categoria].despesa;
       return acc;
     }, {} as Record<string, { receita: number; despesa: number; profit: number }>);
@@ -112,6 +131,14 @@ export function StrategicInsights({ data }: StrategicInsightsProps) {
   const seasonality = getSeasonalityInsight();
   const profitability = getProfitabilityTrend();
   const categories = getTopCategoriesInsight();
+
+  console.log("StrategicInsights - Calculated insights:", {
+    runway,
+    growthRate,
+    seasonality,
+    profitability,
+    categories
+  });
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {

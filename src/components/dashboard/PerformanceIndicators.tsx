@@ -17,26 +17,61 @@ interface PerformanceIndicatorsProps {
 export function PerformanceIndicators({ data }: PerformanceIndicatorsProps) {
   const { isMobile } = useResponsive();
 
-  // Calcular métricas
-  const totalReceitas = data.reduce((sum, item) => sum + item.receita, 0);
-  const totalDespesas = data.reduce((sum, item) => sum + item.despesa, 0);
+  console.log("PerformanceIndicators - Raw data:", data);
+
+  // Calcular métricas baseadas nos dados reais
+  const totalReceitas = data.reduce((sum, item) => sum + (Number(item.receita) || 0), 0);
+  const totalDespesas = data.reduce((sum, item) => sum + (Number(item.despesa) || 0), 0);
   const lucroTotal = totalReceitas - totalDespesas;
   const margemMedia = totalReceitas > 0 ? (lucroTotal / totalReceitas) * 100 : 0;
 
-  // Crescimento mensal (comparar últimos 2 meses)
-  const last2Months = data.slice(-2);
-  const crescimentoReceita = last2Months.length >= 2 ? 
-    ((last2Months[1].receita - last2Months[0].receita) / last2Months[0].receita) * 100 : 0;
+  console.log("PerformanceIndicators - Calculated totals:", {
+    totalReceitas,
+    totalDespesas,
+    lucroTotal,
+    margemMedia
+  });
 
-  // Burn rate (média de despesas dos últimos 3 meses)
-  const last3Months = data.slice(-3);
-  const burnRate = last3Months.reduce((sum, item) => sum + item.despesa, 0) / last3Months.length;
+  // Group data by month to calculate monthly metrics
+  const monthlyData = data.reduce((acc, item) => {
+    const month = item.date.substring(0, 7); // Get YYYY-MM
+    if (!acc[month]) {
+      acc[month] = { receita: 0, despesa: 0, count: 0 };
+    }
+    acc[month].receita += Number(item.receita) || 0;
+    acc[month].despesa += Number(item.despesa) || 0;
+    acc[month].count += 1;
+    return acc;
+  }, {} as Record<string, { receita: number; despesa: number; count: number }>);
+
+  const months = Object.keys(monthlyData).sort();
+  console.log("Monthly data:", monthlyData, "Months:", months);
+
+  // Crescimento mensal (comparar últimos 2 meses se disponível)
+  const crescimentoReceita = months.length >= 2 ? 
+    (() => {
+      const current = monthlyData[months[months.length - 1]]?.receita || 0;
+      const previous = monthlyData[months[months.length - 2]]?.receita || 0;
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return ((current - previous) / previous) * 100;
+    })() : 0;
+
+  // Burn rate (média de despesas dos últimos meses disponíveis)
+  const avgMonthlyExpenses = months.length > 0 ? 
+    months.reduce((sum, month) => sum + monthlyData[month].despesa, 0) / months.length : 0;
 
   // Runway (quantos meses o dinheiro vai durar)
-  const runway = burnRate > 0 ? Math.round(lucroTotal / burnRate) : Infinity;
+  const runway = avgMonthlyExpenses > 0 ? Math.round(Math.abs(lucroTotal) / avgMonthlyExpenses) : Infinity;
 
   // ROI médio
   const roi = totalDespesas > 0 ? ((totalReceitas - totalDespesas) / totalDespesas) * 100 : 0;
+
+  console.log("PerformanceIndicators - Final calculations:", {
+    crescimentoReceita,
+    avgMonthlyExpenses,
+    runway,
+    roi
+  });
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -66,7 +101,7 @@ export function PerformanceIndicators({ data }: PerformanceIndicatorsProps) {
     },
     {
       title: "Burn Rate",
-      value: formatCurrency(burnRate),
+      value: formatCurrency(avgMonthlyExpenses),
       description: "Gasto médio mensal",
       icon: BarChart3,
       color: "blue",
