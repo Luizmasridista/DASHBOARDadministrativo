@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,15 +6,14 @@ import { Label } from "@/components/ui/label";
 import { FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useSheetDataWithOAuth } from "@/hooks/useSheetDataWithOAuth";
-
 const ConnectSheetWithOAuth = () => {
   const [sheetId, setSheetId] = useState(() => localStorage.getItem('connectedSheetId') || "");
   const [sheetRange, setSheetRange] = useState(() => localStorage.getItem('connectedSheetRange') || "A1:D100");
   const [connected, setConnected] = useState(() => localStorage.getItem('connectedSheetId') !== null);
   const [loading, setLoading] = useState(false);
-
-  const { refetch } = useSheetDataWithOAuth();
-
+  const {
+    refetch
+  } = useSheetDataWithOAuth();
   const handleConnect = async () => {
     if (!sheetId.trim()) {
       toast({
@@ -25,27 +23,22 @@ const ConnectSheetWithOAuth = () => {
       });
       return;
     }
-
     setLoading(true);
-    
     try {
       // Save sheet configuration
       localStorage.setItem('connectedSheetId', sheetId);
       localStorage.setItem('connectedSheetRange', sheetRange);
-      
       setConnected(true);
-      
+
       // Trigger data refresh
       await refetch();
-      
       toast({
         title: "Sucesso!",
-        description: "Planilha conectada com sucesso. O dashboard será atualizado automaticamente.",
+        description: "Planilha conectada com sucesso. O dashboard será atualizado automaticamente."
       });
-      
+
       // Notify other components
       window.dispatchEvent(new CustomEvent('sheetConnected'));
-      
     } catch (error) {
       console.error("Erro ao conectar:", error);
       toast({
@@ -57,26 +50,21 @@ const ConnectSheetWithOAuth = () => {
       setLoading(false);
     }
   };
-
   const handleDisconnect = () => {
     // Remove sheet configuration
     localStorage.removeItem('connectedSheetId');
     localStorage.removeItem('connectedSheetRange');
-    
     setConnected(false);
     setSheetId("");
-    
+
     // Notify other components
     window.dispatchEvent(new CustomEvent('sheetDisconnected'));
-    
     toast({
       title: "Desconectado",
-      description: "Planilha desconectada com sucesso",
+      description: "Planilha desconectada com sucesso"
     });
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Sheet Configuration Section */}
       <Card>
         <CardHeader>
@@ -86,16 +74,10 @@ const ConnectSheetWithOAuth = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!connected ? (
-            <>
+          {!connected ? <>
               <div className="space-y-2">
                 <Label htmlFor="sheetId">ID da Planilha</Label>
-                <Input
-                  id="sheetId"
-                  placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                  value={sheetId}
-                  onChange={(e) => setSheetId(e.target.value)}
-                />
+                <Input id="sheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms" value={sheetId} onChange={e => setSheetId(e.target.value)} />
                 <p className="text-sm text-muted-foreground">
                   O ID está na URL da sua planilha: https://docs.google.com/spreadsheets/d/<strong>[ID_AQUI]</strong>/edit
                 </p>
@@ -103,27 +85,16 @@ const ConnectSheetWithOAuth = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="sheetRange">Intervalo de Células</Label>
-                <Input
-                  id="sheetRange"
-                  placeholder="A1:D100"
-                  value={sheetRange}
-                  onChange={(e) => setSheetRange(e.target.value)}
-                />
+                <Input id="sheetRange" placeholder="A1:D100" value={sheetRange} onChange={e => setSheetRange(e.target.value)} />
                 <p className="text-sm text-muted-foreground">
                   Exemplo: A1:D100 (inclui cabeçalhos e dados)
                 </p>
               </div>
 
-              <Button 
-                onClick={handleConnect} 
-                disabled={loading}
-                className="w-full"
-              >
+              <Button onClick={handleConnect} disabled={loading} className="w-full">
                 {loading ? "Conectando..." : "Conectar Planilha"}
               </Button>
-            </>
-          ) : (
-            <div className="text-center space-y-4">
+            </> : <div className="text-center space-y-4">
               <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
               <h3 className="text-lg font-semibold text-green-600">Planilha Conectada!</h3>
               <p className="text-muted-foreground">
@@ -140,8 +111,7 @@ const ConnectSheetWithOAuth = () => {
               <Button variant="outline" onClick={handleDisconnect}>
                 Desconectar
               </Button>
-            </div>
-          )}
+            </div>}
         </CardContent>
       </Card>
 
@@ -158,12 +128,12 @@ const ConnectSheetWithOAuth = () => {
             <p className="text-sm text-muted-foreground">
               Para o dashboard funcionar corretamente, sua planilha deve ter as seguintes colunas:
             </p>
-            <div className="bg-slate-100 p-4 rounded-lg">
+            <div className="p-4 rounded-lg bg-slate-950">
               <div className="grid grid-cols-4 gap-2 text-sm font-medium">
-                <div className="p-2 bg-white rounded border">Data</div>
-                <div className="p-2 bg-white rounded border">Categoria</div>
-                <div className="p-2 bg-white rounded border">Descrição</div>
-                <div className="p-2 bg-white rounded border">Valor</div>
+                <div className="p-2 rounded border bg-slate-950">Data</div>
+                <div className="p-2 rounded border bg-slate-950">Categoria</div>
+                <div className="p-2 rounded border bg-slate-950">Descrição</div>
+                <div className="p-2 rounded border bg-slate-950">Valor</div>
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -172,8 +142,6 @@ const ConnectSheetWithOAuth = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default ConnectSheetWithOAuth;
