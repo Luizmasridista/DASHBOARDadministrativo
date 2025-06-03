@@ -21,122 +21,112 @@ export function createEnhancedConversationalPrompt(
   if (isPerguntaCategoria && analysis.maiorCategoriaGasto) {
     const maior = analysis.maiorCategoriaGasto;
     contextEspecifico = `
-    🎯 IDENTIFICAÇÃO PRECISA DA MAIOR CATEGORIA DE DESPESAS:
+    🎯 RESPOSTA DIRETA BASEADA NOS DADOS:
     
-    ✅ CATEGORIA COM MAIOR GASTO: ${maior.categoria}
-    💰 VALOR TOTAL GASTO: R$ ${maior.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    📊 PERCENTUAL DO TOTAL: ${maior.percentual.toFixed(2)}%
-    📋 NÚMERO DE TRANSAÇÕES: ${maior.transacoes}
-    🏆 POSIÇÃO NO RANKING: ${maior.posicao}º lugar
+    A categoria com maior gasto é: ${maior.categoria}
+    Valor total: R$ ${maior.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+    Representa ${maior.percentual.toFixed(1)}% do total de despesas
     
-    📈 RANKING COMPLETO DE DESPESAS:
-    ${analysis.categoriasDespesasRanking.map((cat, index) => 
-      `${index + 1}º. ${cat.categoria}: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${cat.percentual.toFixed(2)}%)`
+    📊 RANKING COMPLETO:
+    ${analysis.categoriasDespesasRanking.slice(0, 5).map((cat, index) => 
+      `${index + 1}º. ${cat.categoria}: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
     ).join('\n')}
     `;
   }
   
   return `
-    🤖 ASSISTENTE FINANCEIRO IA KAIZEN - ANÁLISE AVANÇADA
+    🤖 ASSISTENTE FINANCEIRO IA KAIZEN
 
-    📊 DADOS FINANCEIROS VALIDADOS E PROCESSADOS:
-    • Total de Receitas: R$ ${analysis.totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    • Total de Despesas: R$ ${analysis.totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    • Lucro/Prejuízo: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    • Margem: ${analysis.margemLucro.toFixed(2)}%
-    • Período Analisado: ${analysis.mesAtual}
-    
-    🔍 QUALIDADE DOS DADOS:
-    • Registros Processados: ${analysis.dadosLimpos}/${analysis.dadosOriginais}
-    • Qualidade: ${(analysis.qualidadeDados * 100).toFixed(1)}%
-    • Categorias Identificadas: ${analysis.numeroCategorias}
-    • Transações Válidas: ${analysis.numeroTransacoes}
+    📊 DADOS VALIDADOS (${analysis.numeroTransacoes} transações):
+    • Receitas: R$ ${analysis.totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+    • Despesas: R$ ${analysis.totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+    • Resultado: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
 
     ${contextEspecifico}
 
     ❓ PERGUNTA: "${userMessage}"
 
-    🎯 INSTRUÇÕES PARA RESPOSTA PRECISA:
-    - Use EXCLUSIVAMENTE os dados validados acima
-    - Seja ESPECÍFICO com números exatos e percentuais
-    - Para perguntas sobre maior categoria, cite EXATAMENTE o nome e valor
-    - Forneça contexto e insights acionáveis
-    - Máximo: 3 parágrafos objetivos
-    - Use emojis relevantes (💰 💸 📈 📉 ⚠️ ✅ 🎯 💡 🏆)
+    🎯 INSTRUÇÕES CRÍTICAS:
+    1. SEMPRE responda com dados EXATOS dos registros analisados
+    2. Para perguntas sobre "maior categoria", cite DIRETAMENTE o nome e valor
+    3. NUNCA diga "não é possível determinar" se os dados existem
+    4. Seja DIRETO e SUCINTO - máximo 2 parágrafos
+    5. Use os números EXATOS fornecidos acima
+    6. Se perguntado sobre categoria específica, responda com precisão
 
-    Responda com base EXCLUSIVAMENTE nos dados fornecidos:
+    RESPONDA AGORA com base nos dados fornecidos:
   `;
 }
 
 export function createEnhancedAnalysisPrompt(analysis: AdvancedAnalysis, analysisType: string): string {
   const baseContext = `
-    📊 ANÁLISE FINANCEIRA AVANÇADA:
+    📊 DADOS FINANCEIROS CONSOLIDADOS:
     💰 Receitas: R$ ${analysis.totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
     💸 Despesas: R$ ${analysis.totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    📈 Lucro/Prejuízo: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    📊 Margem: ${analysis.margemLucro.toFixed(2)}%
-    📋 Transações: ${analysis.numeroTransacoes}
-    🗓️ Período: ${analysis.mesAtual}
+    📈 Resultado: R$ ${analysis.lucroLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+    📊 Margem: ${analysis.margemLucro.toFixed(1)}%
     
-    🏆 RANKING DETALHADO DE CATEGORIAS POR DESPESAS:
-    ${analysis.categoriasDespesasRanking.map((cat, index) => 
-      `${index + 1}º. ${cat.categoria}: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${cat.percentual.toFixed(2)}%)`
-    ).join('\n')}
-
-    🎯 MAIOR CATEGORIA DE GASTO: ${analysis.maiorCategoriaGasto ? 
-      `${analysis.maiorCategoriaGasto.categoria} - R$ ${analysis.maiorCategoriaGasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${analysis.maiorCategoriaGasto.percentual.toFixed(2)}%)` : 
+    🏆 MAIOR CATEGORIA DE GASTO: ${analysis.maiorCategoriaGasto ? 
+      `${analysis.maiorCategoriaGasto.categoria} - R$ ${analysis.maiorCategoriaGasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${analysis.maiorCategoriaGasto.percentual.toFixed(1)}%)` : 
       'Não identificada'}
       
-    📈 ANÁLISE TEMPORAL:
-    ${Object.entries(analysis.dadosMensais).map(([mes, dados]) => 
-      `📅 ${mes}: 💰 R$ ${dados.receitas.toLocaleString('pt-BR')} | 💸 R$ ${dados.despesas.toLocaleString('pt-BR')} | 💹 R$ ${dados.saldoMensal.toLocaleString('pt-BR')}`
+    📋 TOP 5 CATEGORIAS POR DESPESA:
+    ${analysis.categoriasDespesasRanking.slice(0, 5).map((cat, index) => 
+      `${index + 1}º. ${cat.categoria}: R$ ${cat.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${cat.percentual.toFixed(1)}%)`
     ).join('\n')}
+  `;
+
+  const commonInstructions = `
+    🎯 DIRETRIZES OBRIGATÓRIAS:
+    - Use APENAS os dados fornecidos acima
+    - Seja DIRETO e OBJETIVO
+    - Cite números EXATOS
+    - Máximo 150 palavras
+    - Evite generalidades ou evasivas
+    - Português brasileiro
   `;
 
   switch (analysisType) {
     case 'insights':
       return `${baseContext}
       
-      🔍 Forneça 4-5 insights ESTRATÉGICOS e ACIONÁVEIS baseados nos dados.
-      Use técnicas de análise preditiva para identificar padrões e oportunidades.
-      Priorize insights que gerem decisões financeiras eficazes.
-      Use emojis relevantes (📈📉⚠️✅🎯💡🚀) e seja ESPECÍFICO.
-      Máximo: 200 palavras. Português brasileiro.`;
+      ${commonInstructions}
+      🔍 Forneça 3-4 insights ESPECÍFICOS baseados nos dados.
+      Foque em padrões identificáveis e ações práticas.
+      Use emojis relevantes (📈📉⚠️✅🎯💡).`;
 
     case 'recommendations':
       return `${baseContext}
       
-      🎯 Forneça 4-5 recomendações PRÁTICAS e IMPLEMENTÁVEIS.
-      Base-se na análise da maior categoria de gastos e padrões identificados.
-      Inclua ações de curto, médio e longo prazo.
-      Use emojis para destacar ações (🚀💪🎯⚡️✨🔧).
-      Máximo: 200 palavras. Português brasileiro.`;
+      ${commonInstructions}
+      🎯 Forneça 3-4 recomendações PRÁTICAS.
+      Base-se na maior categoria de gastos identificada.
+      Inclua ações específicas e mensuráveis.
+      Use emojis para ações (🚀💪🎯⚡️✨).`;
 
     case 'trends':
       return `${baseContext}
       
-      📊 Analise TENDÊNCIAS detalhadas com base nos dados mensais.
-      Identifique padrões de crescimento/declínio nas categorias principais.
-      Use análise preditiva para projetar cenários futuros.
-      Use emojis para padrões (📈📉🔄⚠️📊🎯).
-      Máximo: 180 palavras. Português brasileiro.`;
+      ${commonInstructions}
+      📊 Analise TENDÊNCIAS com base nos dados mensais.
+      Identifique padrões específicos nas categorias principais.
+      Use emojis para tendências (📈📉🔄⚠️📊).`;
 
     case 'risks':
       return `${baseContext}
       
-      ⚠️ Identifique 4-5 PRINCIPAIS RISCOS financeiros baseados nos dados.
-      Analise concentração de gastos, volatilidade e sustentabilidade.
-      Para cada risco, forneça estratégia de mitigação ESPECÍFICA.
-      Use emojis de alerta (⚠️🚨💥🔴) e soluções (✅🛡️💪🔧).
-      Máximo: 200 palavras. Português brasileiro.`;
+      ${commonInstructions}
+      ⚠️ Identifique 3-4 RISCOS específicos baseados nos dados.
+      Analise concentração de gastos e padrões preocupantes.
+      Para cada risco, sugira uma ação específica.
+      Use emojis de alerta (⚠️🚨💥) e soluções (✅🛡️💪).`;
 
     default:
       return `${baseContext}
       
-      📋 Análise COMPLETA integrando insights, tendências e recomendações.
+      ${commonInstructions}
+      📋 Análise COMPLETA integrando insights e recomendações.
       Destaque a maior categoria de gastos e seu impacto.
-      Inclua análise preditiva e insights acionáveis.
-      Use emojis relevantes para engajamento.
-      Máximo: 250 palavras. Português brasileiro.`;
+      Inclua 2-3 ações práticas específicas.`;
   }
 }
