@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -9,7 +10,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 
 const Auth = lazy(() => import("./pages/Auth"));
-const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
 const queryClient = new QueryClient();
 
@@ -24,11 +24,6 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/connect-sheet" element={<Index />} />
-              <Route path="/oauth/callback" element={
-                <Suspense fallback={<div>Loading...</div>}>
-                  <OAuthCallback />
-                </Suspense>
-              } />
               <Route path="/auth" element={
                 <Suspense fallback={<div>Loading...</div>}>
                   <Auth />

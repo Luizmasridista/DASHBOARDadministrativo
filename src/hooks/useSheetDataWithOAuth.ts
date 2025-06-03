@@ -9,45 +9,17 @@ interface SheetData {
   categoria: string;
 }
 
-interface SheetConnection {
-  id: string;
-  account_email: string;
-  account_name: string;
-  access_token: string;
-  status: string;
-}
-
 export const useSheetDataWithOAuth = () => {
   const [data, setData] = useState<SheetData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [connections, setConnections] = useState<SheetConnection[]>([]);
-  const [selectedConnection, setSelectedConnection] = useState<string | null>(null);
-
-  const fetchConnections = async () => {
-    try {
-      // Temporarily return empty array until the table is created
-      console.log('Google connections table not yet available');
-      setConnections([]);
-    } catch (error) {
-      console.error('Error fetching connections:', error);
-    }
-  };
 
   const fetchSheetData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Check if we have a selected connection
-      if (!selectedConnection) {
-        setData([]);
-        setError("Nenhuma conexão Google selecionada. Configure uma conexão OAuth 2.0 primeiro.");
-        setLoading(false);
-        return;
-      }
-
-      // Get sheet configuration from localStorage (legacy compatibility)
+      // Get sheet configuration from localStorage
       const savedSheetId = localStorage.getItem('connectedSheetId');
       const savedRange = localStorage.getItem('connectedSheetRange');
       
@@ -58,7 +30,7 @@ export const useSheetDataWithOAuth = () => {
         return;
       }
 
-      // For now, fallback to the old API key method until OAuth is fully implemented
+      // Use the API key method (no OAuth required)
       const API_KEY = "AIzaSyDMffuGHiDAx03cuiwLdUPoPZIbos8tSUE";
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${savedSheetId}/values/${savedRange || 'A1:D100'}?key=${API_KEY}`;
       
@@ -163,24 +135,18 @@ export const useSheetDataWithOAuth = () => {
   };
 
   useEffect(() => {
-    fetchConnections();
+    fetchSheetData();
   }, []);
-
-  useEffect(() => {
-    if (connections.length > 0) {
-      fetchSheetData();
-    }
-  }, [selectedConnection, connections]);
 
   // Listen for connection changes
   useEffect(() => {
     const handleConnectionUpdate = () => {
-      fetchConnections();
+      fetchSheetData();
     };
 
-    window.addEventListener('googleConnectionUpdated', handleConnectionUpdate);
+    window.addEventListener('sheetConnected', handleConnectionUpdate);
     return () => {
-      window.removeEventListener('googleConnectionUpdated', handleConnectionUpdate);
+      window.removeEventListener('sheetConnected', handleConnectionUpdate);
     };
   }, []);
 
@@ -188,9 +154,6 @@ export const useSheetDataWithOAuth = () => {
     data, 
     loading, 
     error, 
-    connections, 
-    selectedConnection, 
-    setSelectedConnection,
     refetch: fetchSheetData 
   };
 };

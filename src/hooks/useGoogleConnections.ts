@@ -23,16 +23,15 @@ export const useGoogleConnections = () => {
       setLoading(true);
       setError(null);
       
-      // Temporarily return empty array until the table is created
-      console.log('Google connections table not yet available');
+      // OAuth functionality has been removed - return empty array
+      console.log('OAuth functionality has been removed');
       setConnections([]);
     } catch (error) {
       console.error('Error fetching connections:', error);
       setError(error instanceof Error ? error.message : 'Erro desconhecido');
       toast({
-        title: "Erro ao carregar conexões",
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: "destructive"
+        title: "OAuth removido",
+        description: "A funcionalidade OAuth foi removida. Use o método de API key.",
       });
     } finally {
       setLoading(false);
@@ -40,21 +39,11 @@ export const useGoogleConnections = () => {
   };
 
   const generateAuthUrl = async (clientId: string, redirectUri: string, projectName: string) => {
-    try {
-      toast({
-        title: "Funcionalidade em desenvolvimento",
-        description: "A autenticação OAuth será disponibilizada em breve.",
-      });
-      return '';
-    } catch (error) {
-      console.error('Error generating auth URL:', error);
-      toast({
-        title: "Erro ao gerar URL de autorização",
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: "destructive"
-      });
-      throw error;
-    }
+    toast({
+      title: "Funcionalidade removida",
+      description: "A autenticação OAuth foi removida. Use o método de API key diretamente.",
+    });
+    return '';
   };
 
   const handleOAuthCallback = async (
@@ -64,72 +53,32 @@ export const useGoogleConnections = () => {
     redirectUri: string, 
     state?: string
   ) => {
-    try {
-      toast({
-        title: "Funcionalidade em desenvolvimento",
-        description: "O callback OAuth será implementado em breve.",
-      });
-      return null;
-    } catch (error) {
-      console.error('Error handling OAuth callback:', error);
-      toast({
-        title: "Erro ao processar autorização",
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: "destructive"
-      });
-      throw error;
-    }
+    toast({
+      title: "Funcionalidade removida",
+      description: "O callback OAuth foi removido. Use o método de API key.",
+    });
+    return null;
   };
 
   const refreshConnection = async (connectionId: string, clientId: string, clientSecret: string) => {
-    try {
-      toast({
-        title: "Funcionalidade em desenvolvimento",
-        description: "A renovação de tokens será implementada em breve.",
-      });
-    } catch (error) {
-      console.error('Error refreshing token:', error);
-      toast({
-        title: "Erro ao renovar token",
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: "destructive"
-      });
-      throw error;
-    }
+    toast({
+      title: "Funcionalidade removida",
+      description: "A renovação de tokens foi removida.",
+    });
   };
 
   const revokeConnection = async (connectionId: string) => {
-    try {
-      toast({
-        title: "Funcionalidade em desenvolvimento",
-        description: "A revogação de conexões será implementada em breve.",
-      });
-    } catch (error) {
-      console.error('Error revoking connection:', error);
-      toast({
-        title: "Erro ao revogar conexão",
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: "destructive"
-      });
-      throw error;
-    }
+    toast({
+      title: "Funcionalidade removida",
+      description: "A revogação de conexões foi removida.",
+    });
   };
 
   const deleteConnection = async (connectionId: string) => {
-    try {
-      toast({
-        title: "Funcionalidade em desenvolvimento",
-        description: "A exclusão de conexões será implementada em breve.",
-      });
-    } catch (error) {
-      console.error('Error deleting connection:', error);
-      toast({
-        title: "Erro ao deletar conexão",
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: "destructive"
-      });
-      throw error;
-    }
+    toast({
+      title: "Funcionalidade removida",
+      description: "A exclusão de conexões foi removida.",
+    });
   };
 
   useEffect(() => {
