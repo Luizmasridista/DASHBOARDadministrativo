@@ -1,22 +1,20 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
-import { useGoogleSheetsConnections } from "./useGoogleSheetsConnections";
 import { SheetData } from "@/types/sheetData";
-import { fetchSheetDataWithAPI, fetchSheetDataWithDefaultAPI } from "@/utils/sheetAPI";
+import { fetchSheetDataWithDefaultAPI } from "@/utils/sheetAPI";
 
 export const useIntegratedSheetData = () => {
   const [data, setData] = useState<SheetData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { connections, updateLastUsed } = useGoogleSheetsConnections();
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      console.log("Available connections:", connections);
+      console.log("Fetching sheet data...");
       
       // Check if we have connected sheet configuration
       const savedSheetId = localStorage.getItem('connectedSheetId');
@@ -28,32 +26,14 @@ export const useIntegratedSheetData = () => {
         return;
       }
 
-      // Find an active API connection to use
-      const activeConnection = connections.find(conn => conn.status === 'active');
-      
-      if (!activeConnection) {
-        console.log("No active API connections found, falling back to default API");
-        // Fall back to the hardcoded API key as before
-        const processedData = await fetchSheetDataWithDefaultAPI(savedSheetId);
-        setData(processedData);
-        toast({
-          title: "Sucesso!",
-          description: `${processedData.length} registros carregados da planilha (API padrão).`,
-        });
-      } else {
-        console.log("Using connected API:", activeConnection.project_name);
-        // Use the connected API key
-        const processedData = await fetchSheetDataWithAPI(activeConnection.api_key, activeConnection.id);
-        setData(processedData);
-        
-        // Update last used timestamp for this connection
-        await updateLastUsed(activeConnection.id);
-        
-        toast({
-          title: "Sucesso!",
-          description: `${processedData.length} registros carregados via ${activeConnection.project_name}.`,
-        });
-      }
+      console.log("Using default API for sheet data");
+      // Use the default API key approach
+      const processedData = await fetchSheetDataWithDefaultAPI(savedSheetId);
+      setData(processedData);
+      toast({
+        title: "Sucesso!",
+        description: `${processedData.length} registros carregados da planilha.`,
+      });
       
     } catch (error) {
       console.error("Error fetching sheet data:", error);
@@ -72,11 +52,8 @@ export const useIntegratedSheetData = () => {
   };
 
   useEffect(() => {
-    // Only fetch data when connections are loaded
-    if (connections.length >= 0) { // Allow for empty array (no connections)
-      fetchData();
-    }
-  }, [connections]); // Depend on connections changes
+    fetchData();
+  }, []); // Remove dependency on connections
 
   // Listen for connection changes
   useEffect(() => {
@@ -88,13 +65,13 @@ export const useIntegratedSheetData = () => {
     return () => {
       window.removeEventListener('sheetConnected', handleConnectionUpdate);
     };
-  }, [connections]);
+  }, []);
 
   return { 
     data, 
     loading, 
     error, 
     refetch: fetchData,
-    activeConnection: connections.find(conn => conn.status === 'active')
+    activeConnection: null // No active connection since we removed the API management
   };
 };

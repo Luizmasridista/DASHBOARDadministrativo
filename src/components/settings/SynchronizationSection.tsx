@@ -6,16 +6,14 @@ import { toast } from "@/hooks/use-toast";
 import { useIntegratedSheetData } from "@/hooks/useIntegratedSheetData";
 
 const SynchronizationSection = () => {
-  const { refetch, loading: syncLoading, activeConnection } = useIntegratedSheetData();
+  const { refetch, loading: syncLoading } = useIntegratedSheetData();
 
   const handleSyncNow = async () => {
     try {
       await refetch();
       toast({
         title: "Sincronização Concluída",
-        description: activeConnection 
-          ? `Dados atualizados com sucesso via ${activeConnection.project_name}`
-          : "Dados atualizados com sucesso",
+        description: "Dados atualizados com sucesso",
       });
     } catch (error) {
       toast({
@@ -37,11 +35,6 @@ const SynchronizationSection = () => {
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
           Gerencie a sincronização com suas fontes de dados
-          {activeConnection && (
-            <span className="block mt-1 text-green-600 dark:text-green-400">
-              Conectado via: {activeConnection.project_name}
-            </span>
-          )}
         </p>
         
         <Button 
