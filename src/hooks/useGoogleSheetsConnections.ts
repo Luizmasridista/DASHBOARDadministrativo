@@ -27,9 +27,18 @@ export const useGoogleSheetsConnections = () => {
       setLoading(true);
       setError(null);
 
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setConnections([]);
+        setError("Usuário não autenticado");
+        return;
+      }
+
       const { data, error } = await supabase
         .from('google_sheets_connections')
         .select('*')
+        .eq('user_id', user.id) // Explicitly filter by user_id
         .order('created_at', { ascending: false });
 
       if (error) throw error;

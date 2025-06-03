@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff, Database, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
-import { useSheetData } from "@/hooks/useSheetData";
+import { useIntegratedSheetData } from "@/hooks/useIntegratedSheetData";
 import { useResponsive } from "@/hooks/useResponsive";
 import { FinancialSummaryCards } from "./dashboard/FinancialSummaryCards";
 import { InteractiveChart } from "./dashboard/InteractiveChart";
@@ -25,7 +26,7 @@ import { FloatingAIBot } from "./FloatingAIBot";
 import SpreadsheetTutorial from "./SpreadsheetTutorial";
 
 const Dashboard = () => {
-  const { data, loading, error, refetch } = useSheetData();
+  const { data, loading, error, refetch, activeConnection } = useIntegratedSheetData();
   const { isMobile, isTablet, deviceType } = useResponsive();
   const [dateFilter, setDateFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -202,7 +203,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Status indicator for real data */}
+        {/* Status indicator for real data with API info */}
         <Card className="border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50 backdrop-blur-sm">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 text-green-800 dark:text-green-200">
@@ -212,7 +213,14 @@ const Dashboard = () => {
               <div className="flex-1">
                 <p className="font-medium text-sm sm:text-base">Dados reais conectados ✅</p>
                 <p className="text-xs sm:text-sm opacity-80 mt-1">
-                  Mostrando {data.length} registros da sua planilha • Última atualização: agora
+                  Mostrando {data.length} registros da sua planilha
+                  {activeConnection && (
+                    <span> • Conectado via: {activeConnection.project_name}</span>
+                  )}
+                  {!activeConnection && (
+                    <span> • Usando API padrão</span>
+                  )}
+                  • Última atualização: agora
                 </p>
               </div>
             </div>
