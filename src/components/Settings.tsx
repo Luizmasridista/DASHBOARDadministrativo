@@ -7,33 +7,47 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Settings as SettingsIcon, Download, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useExportPDF } from "@/hooks/useExportPDF";
+import { useExportExcel } from "@/hooks/useExportExcel";
+import { useSheetDataWithOAuth } from "@/hooks/useSheetDataWithOAuth";
 
 const Settings = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(5);
   const [emailNotifications, setEmailNotifications] = useState(false);
-
-  const handleExportPDF = () => {
-    toast({
-      title: "Exportando PDF",
-      description: "O relatório será baixado em breve",
-    });
-    // Implementar exportação PDF
-  };
-
-  const handleExportExcel = () => {
-    toast({
-      title: "Exportando Excel",
-      description: "O arquivo será baixado em breve",
-    });
-    // Implementar exportação Excel
-  };
+  
+  const { exportToPDF, isLoading: pdfLoading } = useExportPDF();
+  const { exportToExcel, isLoading: excelLoading } = useExportExcel();
+  const { refetch, loading: syncLoading } = useSheetDataWithOAuth();
 
   const handleSaveSettings = () => {
+    // Salvar configurações no localStorage
+    localStorage.setItem('settings', JSON.stringify({
+      autoRefresh,
+      refreshInterval,
+      emailNotifications
+    }));
+
     toast({
       title: "Configurações Salvas",
       description: "Suas preferências foram atualizadas",
     });
+  };
+
+  const handleSyncNow = async () => {
+    try {
+      await refetch();
+      toast({
+        title: "Sincronização Concluída",
+        description: "Dados atualizados com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro na sincronização",
+        description: "Não foi possível sincronizar os dados",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -104,14 +118,24 @@ const Settings = () => {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button onClick={handleExportPDF} variant="outline" className="w-full">
+            <Button 
+              onClick={exportToPDF} 
+              variant="outline" 
+              className="w-full"
+              disabled={pdfLoading}
+            >
               <Download className="w-4 h-4 mr-2" />
-              Exportar PDF
+              {pdfLoading ? "Gerando..." : "Exportar PDF"}
             </Button>
             
-            <Button onClick={handleExportExcel} variant="outline" className="w-full">
+            <Button 
+              onClick={exportToExcel} 
+              variant="outline" 
+              className="w-full"
+              disabled={excelLoading}
+            >
               <Download className="w-4 h-4 mr-2" />
-              Exportar Excel
+              {excelLoading ? "Gerando..." : "Exportar Excel"}
             </Button>
           </div>
         </CardContent>
@@ -129,9 +153,14 @@ const Settings = () => {
             Gerencie a sincronização com suas fontes de dados
           </p>
           
-          <Button variant="outline" className="w-full">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Sincronizar Agora
+          <Button 
+            onClick={handleSyncNow}
+            variant="outline" 
+            className="w-full"
+            disabled={syncLoading}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${syncLoading ? 'animate-spin' : ''}`} />
+            {syncLoading ? "Sincronizando..." : "Sincronizar Agora"}
           </Button>
         </CardContent>
       </Card>
