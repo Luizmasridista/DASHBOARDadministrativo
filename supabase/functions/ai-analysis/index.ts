@@ -47,7 +47,7 @@ serve(async (req) => {
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 512, // Reduzido para respostas mais concisas
         }
       }),
     });
@@ -79,27 +79,25 @@ function createConversationalPrompt(data: FinancialData[], userMessage: string) 
   const dataSummary = prepareDataSummary(data);
   
   return `
-    Você é um assistente financeiro especializado da Kaizen. Responda de forma conversacional e direta à pergunta do usuário.
+    Você é o assistente financeiro IA da Kaizen 🤖. Responda de forma CONCISA, DIRETA e ENVOLVENTE.
 
-    Contexto dos dados financeiros disponíveis:
-    - Total de receitas: R$ ${dataSummary.totalReceitas.toLocaleString('pt-BR')}
-    - Total de despesas: R$ ${dataSummary.totalDespesas.toLocaleString('pt-BR')}
-    - Lucro líquido: R$ ${dataSummary.lucroLiquido.toLocaleString('pt-BR')}
-    - Margem de lucro: ${dataSummary.margemLucro.toFixed(2)}%
-    - Categorias principais: ${Object.keys(dataSummary.categorias).join(', ')}
+    📊 Dados financeiros atuais:
+    • Receitas: R$ ${dataSummary.totalReceitas.toLocaleString('pt-BR')}
+    • Despesas: R$ ${dataSummary.totalDespesas.toLocaleString('pt-BR')}
+    • Lucro: R$ ${dataSummary.lucroLiquido.toLocaleString('pt-BR')}
+    • Margem: ${dataSummary.margemLucro.toFixed(1)}%
 
-    Pergunta do usuário: "${userMessage}"
+    ❓ Pergunta: "${userMessage}"
 
-    Instruções:
-    - Responda de forma direta e conversacional
-    - Use os dados financeiros apenas se forem relevantes para a pergunta
-    - Mantenha um tom amigável e profissional
-    - Se a pergunta não for sobre finanças, responda educadamente redirecionando para análises financeiras
-    - Limite sua resposta a 2-3 parágrafos
-    - Use português brasileiro
-    - Se for uma saudação simples, responda cordialmente e pergunte como pode ajudar
+    📝 INSTRUÇÕES IMPORTANTES:
+    - Resposta MÁXIMA: 2 parágrafos curtos
+    - Use emojis relevantes para o contexto (💰 💸 📈 📉 ⚠️ ✅ 🎯 💡)
+    - Seja direto e prático
+    - Se a pergunta não for financeira, redirecione educadamente
+    - Use português brasileiro coloquial
+    - Se for saudação, seja cordial e pergunte como ajudar
 
-    Responda à pergunta do usuário:
+    Responda agora:
   `;
 }
 
@@ -137,16 +135,16 @@ function prepareDataSummary(data: FinancialData[]) {
 
 function createAnalysisPrompt(dataSummary: any, analysisType: string) {
   const baseContext = `
-    Dados financeiros:
-    - Total de receitas: R$ ${dataSummary.totalReceitas.toLocaleString('pt-BR')}
-    - Total de despesas: R$ ${dataSummary.totalDespesas.toLocaleString('pt-BR')}
-    - Lucro líquido: R$ ${dataSummary.lucroLiquido.toLocaleString('pt-BR')}
-    - Margem de lucro: ${dataSummary.margemLucro.toFixed(2)}%
-    - Número de transações: ${dataSummary.numeroTransacoes}
+    📊 DADOS FINANCEIROS REAIS:
+    💰 Receitas: R$ ${dataSummary.totalReceitas.toLocaleString('pt-BR')}
+    💸 Despesas: R$ ${dataSummary.totalDespesas.toLocaleString('pt-BR')}
+    📈 Lucro: R$ ${dataSummary.lucroLiquido.toLocaleString('pt-BR')}
+    📊 Margem: ${dataSummary.margemLucro.toFixed(1)}%
+    📋 Transações: ${dataSummary.numeroTransacoes}
     
-    Categorias:
+    🏷️ Categorias:
     ${Object.entries(dataSummary.categorias).map(([cat, valores]: [string, any]) => 
-      `- ${cat}: Receita R$ ${valores.receita.toLocaleString('pt-BR')}, Despesa R$ ${valores.despesa.toLocaleString('pt-BR')}`
+      `• ${cat}: 💰 R$ ${valores.receita.toLocaleString('pt-BR')} | 💸 R$ ${valores.despesa.toLocaleString('pt-BR')}`
     ).join('\n')}
   `;
 
@@ -154,41 +152,44 @@ function createAnalysisPrompt(dataSummary: any, analysisType: string) {
     case 'insights':
       return `${baseContext}
       
-      Com base nestes dados financeiros, forneça 3-5 insights estratégicos importantes sobre o desempenho financeiro. 
-      Foque em tendências, oportunidades de melhoria e alertas importantes. 
-      Seja específico e prático nas recomendações. Responda em português brasileiro.`;
+      🔍 Forneça 3-4 insights ESTRATÉGICOS e DIRETOS sobre o desempenho financeiro.
+      Use emojis relevantes (📈📉⚠️✅🎯💡) e seja CONCISO.
+      Máximo: 150 palavras. Português brasileiro.`;
 
     case 'recommendations':
       return `${baseContext}
       
-      Com base nestes dados financeiros, forneça 3-5 recomendações práticas e acionáveis para melhorar o desempenho financeiro.
-      Inclua ações específicas que podem ser tomadas no curto e médio prazo.
-      Responda em português brasileiro.`;
+      🎯 Forneça 3-4 recomendações PRÁTICAS e ACIONÁVEIS.
+      Use emojis para destacar ações (🚀💪🎯⚡️✨).
+      Foque em ações específicas do curto prazo.
+      Máximo: 150 palavras. Português brasileiro.`;
 
     case 'trends':
       return `${baseContext}
       
-      Receitas por mês:
+      📈 Receitas mensais:
       ${Object.entries(dataSummary.receitasPorMes).map(([mes, valor]: [string, any]) => 
-        `- ${mes}: R$ ${valor.toLocaleString('pt-BR')}`
+        `📅 ${mes}: R$ ${valor.toLocaleString('pt-BR')}`
       ).join('\n')}
       
-      Analise as tendências financeiras identificadas nos dados. 
-      Destaque padrões sazonais, crescimento/declínio e projeções para os próximos meses.
-      Responda em português brasileiro.`;
+      📊 Analise as TENDÊNCIAS principais de forma DIRETA.
+      Use emojis para padrões (📈📉🔄⚠️).
+      Máximo: 120 palavras. Português brasileiro.`;
 
     case 'risks':
       return `${baseContext}
       
-      Identifique 3-5 principais riscos financeiros com base nos dados apresentados.
-      Inclua riscos relacionados a concentração de receitas, margem de lucro, fluxo de caixa e categorias problemáticas.
-      Para cada risco, sugira uma estratégia de mitigação.
-      Responda em português brasileiro.`;
+      ⚠️ Identifique 3-4 PRINCIPAIS RISCOS financeiros.
+      Use emojis de alerta (⚠️🚨💥🔴) e soluções (✅🛡️💪).
+      Para cada risco, uma estratégia RÁPIDA de mitigação.
+      Máximo: 150 palavras. Português brasileiro.`;
 
     default:
       return `${baseContext}
       
-      Forneça uma análise geral dos dados financeiros apresentados, incluindo insights sobre desempenho, 
-      tendências e recomendações estratégicas. Responda em português brasileiro.`;
+      📋 Análise GERAL e DIRETA dos dados financeiros.
+      Inclua insights sobre desempenho, tendências e recomendações.
+      Use emojis relevantes para engajamento.
+      Máximo: 180 palavras. Português brasileiro.`;
   }
 }

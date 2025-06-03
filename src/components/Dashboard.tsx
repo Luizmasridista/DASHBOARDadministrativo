@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from "react";
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Filter, Calendar, Eye, EyeOff, Database } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -57,7 +58,8 @@ const Dashboard = () => {
     );
   }
 
-  const isUsingMockData = !localStorage.getItem('connectedSheetId');
+  const hasRealData = data.length > 0;
+  const isUsingMockData = false; // Não usar mais dados mock
 
   const filteredData = data.filter(item => {
     if (categoryFilter !== "all" && item.categoria !== categoryFilter) return false;
@@ -65,6 +67,61 @@ const Dashboard = () => {
   });
 
   const categories = [...new Set(data.map(item => item.categoria))];
+
+  // Se não há dados reais, mostrar tela de conexão
+  if (!hasRealData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+        <FloatingAIBot />
+        
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          <div className="text-center space-y-4">
+            <h1 className="text-3xl lg:text-4xl font-light text-gray-900 dark:text-white tracking-tight">
+              Painel Executivo
+            </h1>
+            <p className="text-lg text-gray-500 dark:text-gray-400 font-light">
+              Conecte sua planilha para ver dados financeiros reais
+            </p>
+          </div>
+
+          <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 backdrop-blur-sm">
+            <CardContent className="p-8 text-center space-y-6">
+              <div className="w-16 h-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center mx-auto">
+                <Database className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100">
+                  Nenhum dado encontrado
+                </h3>
+                <p className="text-blue-700 dark:text-blue-300 max-w-md mx-auto">
+                  Para visualizar suas análises financeiras em tempo real, conecte sua planilha do Google Sheets.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={() => window.location.href = '/connect-sheet'}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Conectar Planilha
+                </Button>
+                <Button variant="outline">
+                  Ver Tutorial
+                </Button>
+              </div>
+              
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
@@ -78,7 +135,7 @@ const Dashboard = () => {
               Painel Executivo
             </h1>
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-light">
-              Insights estratégicos para tomada de decisão
+              Dados reais • Insights estratégicos em tempo real
             </p>
           </div>
 
@@ -125,23 +182,22 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {isUsingMockData && (
-          <Card className="border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 backdrop-blur-sm">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 text-amber-800 dark:text-amber-200">
-                <div className="w-8 h-8 rounded-full bg-amber-200 dark:bg-amber-800 flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-4 h-4" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm sm:text-base">Dados de demonstração</p>
-                  <p className="text-xs sm:text-sm opacity-80 mt-1">
-                    Conecte sua planilha do Google Sheets para insights reais
-                  </p>
-                </div>
+        {/* Status indicator for real data */}
+        <Card className="border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50 backdrop-blur-sm">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 text-green-800 dark:text-green-200">
+              <div className="w-8 h-8 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center flex-shrink-0">
+                <Database className="w-4 h-4" />
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <div className="flex-1">
+                <p className="font-medium text-sm sm:text-base">Dados reais conectados ✅</p>
+                <p className="text-xs sm:text-sm opacity-80 mt-1">
+                  Mostrando {data.length} registros da sua planilha • Última atualização: agora
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Strategic Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

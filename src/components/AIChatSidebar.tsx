@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Olá! Sou o assistente IA da Kaizen. Como posso ajudá-lo a analisar seus dados financeiros hoje?',
+      content: '👋 Olá! Sou seu assistente financeiro IA da Kaizen! 🤖\n\n💡 Posso ajudá-lo a:\n📊 Analisar seus dados financeiros\n📈 Identificar tendências e oportunidades\n🎯 Sugerir ações estratégicas\n⚠️ Detectar riscos financeiros\n\nComo posso ajudá-lo hoje? 🚀',
       sender: 'ai',
       timestamp: new Date()
     }
@@ -76,7 +77,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
       console.error('Erro ao enviar mensagem:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Isso pode acontecer quando não consigo me conectar ao serviço de IA. Tente novamente em alguns instantes.',
+        content: '😔 Ops! Algo deu errado ao processar sua mensagem.\n\n🔧 Isso pode acontecer quando não consigo me conectar ao serviço de IA. Tente novamente em alguns instantes! ⏱️',
         sender: 'ai',
         timestamp: new Date()
       };
@@ -103,8 +104,8 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
               <Bot className="w-5 h-5" />
             </div>
             <div>
-              <SheetTitle className="text-white text-left">Assistente IA Kaizen</SheetTitle>
-              <p className="text-sm opacity-90 text-left">Análise Financeira Inteligente</p>
+              <SheetTitle className="text-white text-left">🤖 Assistente IA Kaizen</SheetTitle>
+              <p className="text-sm opacity-90 text-left">💡 Análise Financeira Inteligente</p>
             </div>
           </div>
         </SheetHeader>
@@ -174,7 +175,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Digite sua pergunta sobre os dados financeiros..."
+              placeholder="💬 Digite sua pergunta sobre finanças..."
               className="flex-1 resize-none border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
               rows={2}
               disabled={isLoading}

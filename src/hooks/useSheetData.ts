@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -21,15 +20,9 @@ export const useSheetData = () => {
       const savedRange = localStorage.getItem('connectedSheetRange');
       
       if (!savedSheetId) {
-        // Se não há planilha conectada, usar dados mock
-        const mockData: SheetData[] = [
-          { date: "2024-01", receita: 50000, despesa: 30000, categoria: "Vendas" },
-          { date: "2024-02", receita: 60000, despesa: 35000, categoria: "Serviços" },
-          { date: "2024-03", receita: 55000, despesa: 40000, categoria: "Vendas" },
-          { date: "2024-04", receita: 70000, despesa: 38000, categoria: "Vendas" },
-          { date: "2024-05", receita: 65000, despesa: 42000, categoria: "Serviços" },
-        ];
-        setData(mockData);
+        // Se não há planilha conectada, não usar dados mock - deixar vazio
+        setData([]);
+        setError("Nenhuma planilha conectada. Conecte sua planilha do Google Sheets para ver dados reais.");
         setLoading(false);
         return;
       }
@@ -50,23 +43,24 @@ export const useSheetData = () => {
         // Processar os dados da planilha
         const processedData = processSheetData(sheetData.values);
         setData(processedData);
+        setError(null);
       } else {
         throw new Error("Nenhum dado encontrado na planilha");
       }
       
     } catch (error) {
       console.error("Erro ao buscar dados da planilha:", error);
-      setError(error instanceof Error ? error.message : "Erro desconhecido");
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      setError(errorMessage);
       
-      // Em caso de erro, usar dados mock
-      const mockData: SheetData[] = [
-        { date: "2024-01", receita: 50000, despesa: 30000, categoria: "Vendas" },
-        { date: "2024-02", receita: 60000, despesa: 35000, categoria: "Serviços" },
-        { date: "2024-03", receita: 55000, despesa: 40000, categoria: "Vendas" },
-        { date: "2024-04", receita: 70000, despesa: 38000, categoria: "Vendas" },
-        { date: "2024-05", receita: 65000, despesa: 42000, categoria: "Serviços" },
-      ];
-      setData(mockData);
+      // Em caso de erro, não usar dados mock - deixar vazio para mostrar dados reais apenas
+      setData([]);
+      
+      toast({
+        title: "Erro ao carregar dados",
+        description: "Conecte sua planilha do Google Sheets para visualizar dados reais.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
