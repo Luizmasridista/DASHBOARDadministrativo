@@ -6,14 +6,17 @@ import { Label } from "@/components/ui/label";
 import { FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useSheetDataWithOAuth } from "@/hooks/useSheetDataWithOAuth";
+
 const ConnectSheetWithOAuth = () => {
   const [sheetId, setSheetId] = useState(() => localStorage.getItem('connectedSheetId') || "");
   const [sheetRange, setSheetRange] = useState(() => localStorage.getItem('connectedSheetRange') || "A1:D100");
   const [connected, setConnected] = useState(() => localStorage.getItem('connectedSheetId') !== null);
   const [loading, setLoading] = useState(false);
+
   const {
     refetch
   } = useSheetDataWithOAuth();
+
   const handleConnect = async () => {
     if (!sheetId.trim()) {
       toast({
@@ -23,7 +26,9 @@ const ConnectSheetWithOAuth = () => {
       });
       return;
     }
+
     setLoading(true);
+
     try {
       // Save sheet configuration
       localStorage.setItem('connectedSheetId', sheetId);
@@ -32,6 +37,7 @@ const ConnectSheetWithOAuth = () => {
 
       // Trigger data refresh
       await refetch();
+
       toast({
         title: "Sucesso!",
         description: "Planilha conectada com sucesso. O dashboard será atualizado automaticamente."
@@ -50,6 +56,7 @@ const ConnectSheetWithOAuth = () => {
       setLoading(false);
     }
   };
+
   const handleDisconnect = () => {
     // Remove sheet configuration
     localStorage.removeItem('connectedSheetId');
@@ -59,11 +66,13 @@ const ConnectSheetWithOAuth = () => {
 
     // Notify other components
     window.dispatchEvent(new CustomEvent('sheetDisconnected'));
+
     toast({
       title: "Desconectado",
       description: "Planilha desconectada com sucesso"
     });
   };
+
   return <div className="space-y-6">
       {/* Sheet Configuration Section */}
       <Card>
@@ -128,12 +137,12 @@ const ConnectSheetWithOAuth = () => {
             <p className="text-sm text-muted-foreground">
               Para o dashboard funcionar corretamente, sua planilha deve ter as seguintes colunas:
             </p>
-            <div className="p-4 rounded-lg bg-slate-950">
+            <div className="p-4 rounded-lg bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-4 gap-2 text-sm font-medium">
-                <div className="p-2 rounded border bg-slate-950">Data</div>
-                <div className="p-2 rounded border bg-slate-950">Categoria</div>
-                <div className="p-2 rounded border bg-slate-950">Descrição</div>
-                <div className="p-2 rounded border bg-slate-950">Valor</div>
+                <div className="p-2 rounded border bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">Data</div>
+                <div className="p-2 rounded border bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">Categoria</div>
+                <div className="p-2 rounded border bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">Descrição</div>
+                <div className="p-2 rounded border bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">Valor</div>
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -144,4 +153,5 @@ const ConnectSheetWithOAuth = () => {
       </Card>
     </div>;
 };
+
 export default ConnectSheetWithOAuth;
