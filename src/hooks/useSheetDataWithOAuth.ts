@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -30,8 +29,8 @@ export const useSheetDataWithOAuth = () => {
         return;
       }
 
-      // Use the API key method (no OAuth required)
-      const API_KEY = "AIzaSyDMffuGHiDAx03cuiwLdUPoPZIbos8tSUE";
+      // Use the new API key
+      const API_KEY = "AIzaSyBVFJQDkbI2MAgkS8OPYPGGz3IETLs0GQg";
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${savedSheetId}/values/${savedRange || 'A1:D100'}?key=${API_KEY}`;
       
       console.log("Making API request to:", url);
