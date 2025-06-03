@@ -14,6 +14,7 @@ export interface GoogleSheetsConnection {
   quota_limit: number;
   created_at: string;
   updated_at: string;
+  user_id: string;
 }
 
 export const useGoogleSheetsConnections = () => {
@@ -33,7 +34,13 @@ export const useGoogleSheetsConnections = () => {
 
       if (error) throw error;
 
-      setConnections(data || []);
+      // Type assertion to ensure status is properly typed
+      const typedConnections = (data || []).map(conn => ({
+        ...conn,
+        status: conn.status as 'active' | 'inactive' | 'error'
+      }));
+
+      setConnections(typedConnections);
     } catch (error) {
       console.error('Error fetching connections:', error);
       setError(error instanceof Error ? error.message : 'Erro desconhecido');
@@ -50,6 +57,12 @@ export const useGoogleSheetsConnections = () => {
   const addConnection = async (apiKey: string, projectName: string, description?: string) => {
     try {
       setLoading(true);
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
       
       // Validate API key by making a test request
       const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/test/values/A1:A1?key=${apiKey}`;
@@ -71,21 +84,28 @@ export const useGoogleSheetsConnections = () => {
           description: description || null,
           status: status,
           quota_used: 0,
-          quota_limit: 100000
+          quota_limit: 100000,
+          user_id: user.id
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setConnections(prev => [data, ...prev]);
+      // Type the returned data properly
+      const typedConnection: GoogleSheetsConnection = {
+        ...data,
+        status: data.status as 'active' | 'inactive' | 'error'
+      };
+
+      setConnections(prev => [typedConnection, ...prev]);
       
       toast({
         title: "Conexão adicionada",
         description: `API "${projectName}" foi adicionada com sucesso`,
       });
 
-      return data;
+      return typedConnection;
     } catch (error) {
       console.error('Error adding connection:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
