@@ -1,15 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Dashboard from "@/components/Dashboard";
-import ConnectSheet from "@/components/ConnectSheet";
 import Settings from "@/components/Settings";
 import { MobileHeader } from "@/components/MobileHeader";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import ConnectSheetWithOAuth from "@/components/ConnectSheetWithOAuth";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -52,7 +51,7 @@ const Index = () => {
       case "dashboard":
         return <Dashboard />;
       case "connect":
-        return <ConnectSheet />;
+        return <ConnectSheetWithOAuth />;
       case "settings":
         return <Settings />;
       default:
