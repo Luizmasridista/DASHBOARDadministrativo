@@ -15,22 +15,22 @@ const SpreadsheetTutorial = () => {
       icon: <FileSpreadsheet className="w-6 h-6" />,
       content: (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Sua planilha deve ter exatamente estas colunas na primeira linha:
           </p>
-          <div className="bg-gray-50 p-4 rounded-lg border">
+          <div className="bg-muted/50 dark:bg-muted/20 p-4 rounded-lg border border-border">
             <div className="grid grid-cols-4 gap-2 text-sm font-medium mb-2">
-              <div className="p-2 bg-white rounded border text-center">Data</div>
-              <div className="p-2 bg-white rounded border text-center">Categoria</div>
-              <div className="p-2 bg-white rounded border text-center">Descrição</div>
-              <div className="p-2 bg-white rounded border text-center">Valor</div>
+              <div className="p-2 bg-card border border-border rounded text-center">Data</div>
+              <div className="p-2 bg-card border border-border rounded text-center">Categoria</div>
+              <div className="p-2 bg-card border border-border rounded text-center">Descrição</div>
+              <div className="p-2 bg-card border border-border rounded text-center">Valor</div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Exemplo: 01/06/2024 | Receita | Vendas | 1500.00
             </p>
           </div>
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <p className="text-sm text-blue-700">
+          <div className="bg-blue-50 dark:bg-blue-950/50 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
               <strong>Dica:</strong> Use "Receita" ou "Despesa" na coluna Categoria para classificar automaticamente os valores.
             </p>
           </div>
@@ -61,8 +61,8 @@ const SpreadsheetTutorial = () => {
               <p className="text-sm">Clique em <strong>"Copiar link"</strong></p>
             </div>
           </div>
-          <div className="bg-yellow-50 p-3 rounded-lg">
-            <p className="text-sm text-yellow-700">
+          <div className="bg-yellow-50 dark:bg-yellow-950/50 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">
               <strong>Importante:</strong> Certifique-se de que a planilha está definida como "Qualquer pessoa com o link" para que o sistema possa acessá-la.
             </p>
           </div>
@@ -75,17 +75,17 @@ const SpreadsheetTutorial = () => {
       icon: <Key className="w-6 h-6" />,
       content: (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            No link da sua planilha, o ID está entre <code>/spreadsheets/d/</code> e <code>/edit</code>:
+          <p className="text-sm text-muted-foreground">
+            No link da sua planilha, o ID está entre <code className="bg-muted px-1 rounded text-xs">/spreadsheets/d/</code> e <code className="bg-muted px-1 rounded text-xs">/edit</code>:
           </p>
-          <div className="bg-gray-50 p-4 rounded-lg border font-mono text-xs">
+          <div className="bg-muted/50 dark:bg-muted/20 p-4 rounded-lg border border-border font-mono text-xs">
             <p className="break-all">
-              https://docs.google.com/spreadsheets/d/<span className="bg-yellow-200 px-1 rounded">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms</span>/edit#gid=0
+              https://docs.google.com/spreadsheets/d/<span className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms</span>/edit#gid=0
             </p>
           </div>
-          <div className="bg-green-50 p-3 rounded-lg">
-            <p className="text-sm text-green-700">
-              <strong>Exemplo:</strong> No link acima, o ID seria: <code>1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms</code>
+          <div className="bg-green-50 dark:bg-green-950/50 p-3 rounded-lg border border-green-200 dark:border-green-800">
+            <p className="text-sm text-green-700 dark:text-green-300">
+              <strong>Exemplo:</strong> No link acima, o ID seria: <code className="bg-muted px-1 rounded text-xs">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms</code>
             </p>
           </div>
           <div className="space-y-2">
@@ -123,8 +123,8 @@ const SpreadsheetTutorial = () => {
               <p className="text-sm">Clique em <strong>"Conectar Planilha"</strong></p>
             </div>
           </div>
-          <div className="bg-green-50 p-3 rounded-lg">
-            <p className="text-sm text-green-700">
+          <div className="bg-green-50 dark:bg-green-950/50 p-3 rounded-lg border border-green-200 dark:border-green-800">
+            <p className="text-sm text-green-700 dark:text-green-300">
               <strong>Sucesso!</strong> Após conectar, seus dados aparecerão automaticamente no dashboard em tempo real.
             </p>
           </div>
@@ -154,8 +154,8 @@ const SpreadsheetTutorial = () => {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
                 index <= currentStep
-                  ? "bg-blue-500 border-blue-500 text-white"
-                  : "border-gray-300 text-gray-400"
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : "border-muted text-muted-foreground"
               }`}
             >
               {index < currentStep ? (
@@ -167,7 +167,7 @@ const SpreadsheetTutorial = () => {
             {index < steps.length - 1 && (
               <div
                 className={`w-8 h-0.5 mx-2 ${
-                  index < currentStep ? "bg-blue-500" : "bg-gray-300"
+                  index < currentStep ? "bg-primary" : "bg-muted"
                 }`}
               />
             )}
@@ -176,15 +176,15 @@ const SpreadsheetTutorial = () => {
       </div>
 
       {/* Current Step Content */}
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary">
               {steps[currentStep].icon}
             </div>
             <div>
               <h3 className="text-lg font-semibold">{steps[currentStep].title}</h3>
-              <p className="text-sm text-gray-600 font-normal">{steps[currentStep].description}</p>
+              <p className="text-sm text-muted-foreground font-normal">{steps[currentStep].description}</p>
             </div>
           </CardTitle>
         </CardHeader>
