@@ -49,8 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    // Configuração manual do domínio
-    const redirectUrl = 'https://8ee9fe33-c5ae-4007-b793-10e1da33a748.lovableproject.com/';
+    // Use dynamic redirect URL based on current environment
+    const redirectUrl = window.location.origin + '/';
     console.log('Sign up redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signUp({ 
@@ -66,8 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     console.log('Attempting Google login...');
     
-    // Configuração manual com domínio específico do Lovable
-    const redirectUrl = 'https://8ee9fe33-c5ae-4007-b793-10e1da33a748.lovableproject.com/';
+    // Use current origin for redirect to ensure consistency
+    const redirectUrl = window.location.origin + '/';
     console.log('Google login redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signInWithOAuth({
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         skipBrowserRedirect: false,
         queryParams: {
           access_type: 'offline',
-          prompt: 'select_account',
+          prompt: 'consent',
         }
       }
     });
@@ -87,8 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithMicrosoft = async () => {
-    // Configuração manual do domínio
-    const redirectUrl = 'https://8ee9fe33-c5ae-4007-b793-10e1da33a748.lovableproject.com/';
+    // Use current origin for redirect
+    const redirectUrl = window.location.origin + '/';
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
