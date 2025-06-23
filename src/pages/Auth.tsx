@@ -11,13 +11,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Lock, Mail, ShieldCheck, BarChart3, TrendingUp, Users, Zap, CheckCircle, Star } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, BarChart3, TrendingUp, Users, Zap, CheckCircle, Star, Loader2 } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const { signIn, signUp, signInWithGoogle, signInWithMicrosoft, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [emailError, setEmailError] = useState("");
@@ -73,6 +74,40 @@ const Auth = () => {
     }
     
     setLoading(false);
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
+    setSocialLoading(provider);
+    
+    try {
+      let result;
+      if (provider === 'google') {
+        result = await signInWithGoogle();
+      } else {
+        result = await signInWithMicrosoft();
+      }
+      
+      if (result?.error) {
+        toast({
+          title: "Erro ao fazer login",
+          description: `Erro ao conectar com ${provider === 'google' ? 'Google' : 'Microsoft'}: ${result.error.message}`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: `Conectado com ${provider === 'google' ? 'Google' : 'Microsoft'}.`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro inesperado",
+        description: error?.message || "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
+    } finally {
+      setSocialLoading(null);
+    }
   };
 
   const validateEmail = (value: string) => {
@@ -245,17 +280,30 @@ const Auth = () => {
               >
                 <button 
                   type="button" 
-                  className="flex items-center justify-center gap-3 w-full py-3.5 px-4 rounded-xl border border-slate-600/40 bg-slate-700/40 hover:bg-slate-700/60 transition-all duration-200 text-white font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                  onClick={() => handleSocialLogin('google')}
+                  disabled={socialLoading !== null}
+                  className="flex items-center justify-center gap-3 w-full py-3.5 px-4 rounded-xl border border-slate-600/40 bg-slate-700/40 hover:bg-slate-700/60 transition-all duration-200 text-white font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  <img src="/google.svg" alt="Google" className="h-5 w-5" />
-                  Entrar com Google
+                  {socialLoading === 'google' ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <img src="/google.svg" alt="Google" className="h-5 w-5" />
+                  )}
+                  {socialLoading === 'google' ? 'Conectando...' : 'Entrar com Google'}
                 </button>
+                
                 <button 
                   type="button" 
-                  className="flex items-center justify-center gap-3 w-full py-3.5 px-4 rounded-xl border border-slate-600/40 bg-slate-700/40 hover:bg-slate-700/60 transition-all duration-200 text-white font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                  onClick={() => handleSocialLogin('microsoft')}
+                  disabled={socialLoading !== null}
+                  className="flex items-center justify-center gap-3 w-full py-3.5 px-4 rounded-xl border border-slate-600/40 bg-slate-700/40 hover:bg-slate-700/60 transition-all duration-200 text-white font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  <img src="/microsoft.svg" alt="Microsoft" className="h-5 w-5" />
-                  Entrar com Microsoft
+                  {socialLoading === 'microsoft' ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <img src="/microsoft.svg" alt="Microsoft" className="h-5 w-5" />
+                  )}
+                  {socialLoading === 'microsoft' ? 'Conectando...' : 'Entrar com Microsoft'}
                 </button>
               </motion.div>
 
@@ -364,7 +412,14 @@ const Auth = () => {
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 h-12 text-sm transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl transform hover:scale-[1.02]" 
                       disabled={loading || !!emailError || !!passwordError}
                     >
-                      {loading ? "Entrando..." : "Acessar minha conta"}
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Entrando...
+                        </div>
+                      ) : (
+                        "Acessar minha conta"
+                      )}
                     </Button>
                   </form>
                 </TabsContent>
@@ -411,7 +466,14 @@ const Auth = () => {
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 h-12 text-sm transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl transform hover:scale-[1.02]" 
                       disabled={loading || !!emailError || !!passwordError}
                     >
-                      {loading ? "Criando conta..." : "Criar conta gratuita"}
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Criando conta...
+                        </div>
+                      ) : (
+                        "Criar conta gratuita"
+                      )}
                     </Button>
                   </form>
                 </TabsContent>
@@ -462,7 +524,6 @@ const Auth = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="relative z-10 py-20 px-6 bg-slate-800/30">
         <div className="max-w-4xl mx-auto">
           <motion.div
@@ -503,7 +564,6 @@ const Auth = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="relative z-10 py-8 px-6 border-t border-slate-700/50">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2 text-slate-400">
