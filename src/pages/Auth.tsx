@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, BarChart3, TrendingUp, Users, Zap, CheckCircle, Star } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -87,8 +87,53 @@ const Auth = () => {
     return "";
   };
 
+  const features = [
+    {
+      icon: <BarChart3 className="w-8 h-8 text-blue-400" />,
+      title: "Relatórios em Tempo Real",
+      description: "Visualize suas finanças com gráficos dinâmicos e relatórios atualizados instantaneamente."
+    },
+    {
+      icon: <TrendingUp className="w-8 h-8 text-green-400" />,
+      title: "Análise de Tendências",
+      description: "Identifique padrões e oportunidades com nossa IA avançada de análise financeira."
+    },
+    {
+      icon: <ShieldCheck className="w-8 h-8 text-purple-400" />,
+      title: "Segurança Máxima",
+      description: "Seus dados protegidos com criptografia de nível bancário e backup automático."
+    },
+    {
+      icon: <Zap className="w-8 h-8 text-yellow-400" />,
+      title: "Integração Automática",
+      description: "Conecte suas contas e planilhas automaticamente, sem trabalho manual."
+    }
+  ];
+
+  const benefits = [
+    "Redução de 80% no tempo de preparação de relatórios",
+    "Visibilidade completa do fluxo de caixa",
+    "Alertas inteligentes para anomalias financeiras",
+    "Exportação para Excel e PDF com um clique"
+  ];
+
+  const testimonials = [
+    {
+      name: "Maria Silva",
+      company: "TechStart Ltda",
+      text: "Economizamos 15 horas por semana na gestão financeira. Incrível!",
+      rating: 5
+    },
+    {
+      name: "João Santos",
+      company: "Inovação Digital",
+      text: "A melhor ferramenta para controle financeiro que já usamos.",
+      rating: 5
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-900 relative overflow-hidden">
       {/* Background with subtle gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950" />
       
@@ -98,54 +143,99 @@ const Auth = () => {
         <div className="absolute top-40 right-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse-slow" />
         <div className="absolute bottom-20 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse-slower" />
       </div>
-      
-      <AnimatePresence>
+
+      {/* Header */}
+      <header className="relative z-20 p-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
+              alt="Logo" 
+              className="h-8 w-auto"
+            />
+            <span className="text-white font-bold text-xl">FinanceControl</span>
+          </div>
+          <ThemeToggle />
+        </div>
+      </header>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12 grid lg:grid-cols-2 gap-12 items-center">
+        {/* Left side - Hero Content */}
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-8"
+        >
+          <div className="space-y-6">
+            <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+              Controle financeiro
+              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> inteligente</span>
+            </h1>
+            <p className="text-xl text-slate-300 leading-relaxed">
+              Transforme a gestão financeira da sua empresa com relatórios em tempo real, 
+              análises inteligentes e segurança de nível bancário.
+            </p>
+          </div>
+
+          {/* Benefits List */}
+          <div className="space-y-4">
+            {benefits.map((benefit, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
+                className="flex items-center gap-3 text-slate-200"
+              >
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <span>{benefit}</span>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Social Proof */}
+          <div className="flex items-center gap-6 pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">500+</div>
+              <div className="text-sm text-slate-400">Empresas ativas</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">99.9%</div>
+              <div className="text-sm text-slate-400">Uptime</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">4.9★</div>
+              <div className="text-sm text-slate-400">Avaliação</div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Right side - Auth Form */}
         <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="w-full max-w-md z-10 relative"
+          className="w-full max-w-md mx-auto"
         >
           <Card className="bg-slate-800/90 backdrop-blur-lg border-slate-700/50 shadow-2xl rounded-2xl overflow-hidden">
-            <div className="absolute top-6 right-6 z-10">
-              <ThemeToggle />
-            </div>
-            
-            <CardHeader className="text-center space-y-8 pb-8 pt-8">
-              {/* Logo Section */}
-              <motion.div 
-                className="flex justify-center"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.4 }}
-              >
-                <div className="bg-slate-700/60 backdrop-blur-sm rounded-2xl px-10 py-5 border border-slate-600/30 shadow-xl">
-                  <img 
-                    src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
-                    alt="Logo da Empresa" 
-                    className="h-12 w-auto"
-                  />
-                </div>
-              </motion.div>
-              
-              {/* Title and Description */}
+            <CardHeader className="text-center space-y-6 pb-6 pt-8">
               <motion.div 
                 className="space-y-4"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
               >
-                <CardTitle className="text-2xl font-bold text-white leading-snug">
-                  Controle financeiro fácil e<br />seguro para sua empresa
+                <CardTitle className="text-2xl font-bold text-white">
+                  Comece agora gratuitamente
                 </CardTitle>
-                <CardDescription className="text-slate-400 text-sm leading-relaxed max-w-sm mx-auto">
-                  Acesse relatórios em tempo real, segurança de dados<br />garantida, suporte dedicado.
+                <CardDescription className="text-slate-400 text-sm">
+                  Teste por 14 dias sem compromisso
                 </CardDescription>
               </motion.div>
             </CardHeader>
 
-            <CardContent className="space-y-8 px-8 pb-8">
+            <CardContent className="space-y-6 px-8 pb-8">
               {/* Social Login Buttons */}
               <motion.div 
                 className="space-y-3"
@@ -170,7 +260,7 @@ const Auth = () => {
               </motion.div>
 
               {/* Divider */}
-              <div className="flex items-center gap-4 my-8">
+              <div className="flex items-center gap-4 my-6">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent" />
                 <span className="text-xs text-slate-500 font-medium px-2">ou</span>
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent" />
@@ -193,9 +283,9 @@ const Auth = () => {
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="signin" className="mt-8">
-                  <form onSubmit={handleSignIn} className="space-y-6">
-                    <div className="space-y-3">
+                <TabsContent value="signin" className="mt-6">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
                       <Label htmlFor="email" className="text-slate-300 text-sm font-medium flex items-center gap-2">
                         <Mail className="w-4 h-4" /> Email
                       </Label>
@@ -208,29 +298,24 @@ const Auth = () => {
                           setEmailError(validateEmail(e.target.value));
                         }}
                         required
-                        aria-invalid={!!emailError}
-                        aria-describedby="email-error"
-                        className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 rounded-xl ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
+                        className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 rounded-xl ${emailError ? 'border-red-500' : ''}`}
                         placeholder="seu@email.com"
                       />
                       <AnimatePresence>
                         {emailError && (
                           <motion.div
-                            id="email-error"
-                            className="text-red-400 text-xs flex items-center gap-1.5 mt-2"
+                            className="text-red-400 text-xs flex items-center gap-1.5"
                             initial={{ opacity: 0, y: -4 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -4 }}
-                            role="alert"
                           >
-                            <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             {emailError}
                           </motion.div>
                         )}
                       </AnimatePresence>
                     </div>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <Label htmlFor="password" className="text-slate-300 text-sm font-medium flex items-center gap-2">
                         <Lock className="w-4 h-4" /> Senha
                       </Label>
@@ -244,15 +329,11 @@ const Auth = () => {
                             setPasswordError(validatePassword(e.target.value));
                           }}
                           required
-                          aria-invalid={!!passwordError}
-                          aria-describedby="password-error"
-                          className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 pr-12 rounded-xl ${passwordError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
+                          className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 pr-12 rounded-xl ${passwordError ? 'border-red-500' : ''}`}
                           placeholder="••••••••"
                         />
                         <button 
                           type="button" 
-                          tabIndex={-1} 
-                          aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} 
                           onClick={() => setShowPassword(v => !v)} 
                           className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
                         >
@@ -262,19 +343,16 @@ const Auth = () => {
                       <AnimatePresence>
                         {passwordError && (
                           <motion.div
-                            id="password-error"
-                            className="text-red-400 text-xs flex items-center gap-1.5 mt-2"
+                            className="text-red-400 text-xs flex items-center gap-1.5"
                             initial={{ opacity: 0, y: -4 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -4 }}
-                            role="alert"
                           >
-                            <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             {passwordError}
                           </motion.div>
                         )}
                       </AnimatePresence>
-                      <div className="flex justify-end mt-3">
+                      <div className="flex justify-end">
                         <a href="#" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
                           Esqueceu a senha?
                         </a>
@@ -291,9 +369,9 @@ const Auth = () => {
                   </form>
                 </TabsContent>
                 
-                <TabsContent value="signup" className="mt-8">
-                  <form onSubmit={handleSignUp} className="space-y-6">
-                    <div className="space-y-3">
+                <TabsContent value="signup" className="mt-6">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
                       <Label htmlFor="signup-email" className="text-slate-300 text-sm font-medium">
                         Email
                       </Label>
@@ -306,28 +384,11 @@ const Auth = () => {
                           setEmailError(validateEmail(e.target.value));
                         }}
                         required
-                        aria-invalid={!!emailError}
-                        aria-describedby="signup-email-error"
-                        className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 rounded-xl ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
+                        className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 rounded-xl ${emailError ? 'border-red-500' : ''}`}
                         placeholder="seu@email.com"
                       />
-                      <AnimatePresence>
-                        {emailError && (
-                          <motion.div
-                            id="signup-email-error"
-                            className="text-red-400 text-xs flex items-center gap-1.5 mt-2"
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -4 }}
-                            role="alert"
-                          >
-                            <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            {emailError}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <Label htmlFor="signup-password" className="text-slate-300 text-sm font-medium">
                         Senha
                       </Label>
@@ -341,62 +402,123 @@ const Auth = () => {
                         }}
                         required
                         minLength={6}
-                        aria-invalid={!!passwordError}
-                        aria-describedby="signup-password-error"
-                        className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 rounded-xl ${passwordError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
+                        className={`bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 rounded-xl ${passwordError ? 'border-red-500' : ''}`}
                         placeholder="••••••••"
                       />
-                      <AnimatePresence>
-                        {passwordError && (
-                          <motion.div
-                            id="signup-password-error"
-                            className="text-red-400 text-xs flex items-center gap-1.5 mt-2"
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -4 }}
-                            role="alert"
-                          >
-                            <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            {passwordError}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </div>
                     <Button 
                       type="submit" 
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 h-12 text-sm transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl transform hover:scale-[1.02]" 
                       disabled={loading || !!emailError || !!passwordError}
                     >
-                      {loading ? "Criando conta..." : "Criar Conta"}
+                      {loading ? "Criando conta..." : "Criar conta gratuita"}
                     </Button>
                   </form>
                 </TabsContent>
               </Tabs>
 
-              {/* Social Proof Section */}
-              <motion.div 
-                className="mt-10 space-y-5 text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6, duration: 0.4 }}
-              >
-                <div className="flex justify-center gap-8">
-                  <img src="/client1.svg" alt="Cliente 1" className="h-6 opacity-50 hover:opacity-70 transition-opacity" />
-                  <img src="/client2.svg" alt="Cliente 2" className="h-6 opacity-50 hover:opacity-70 transition-opacity" />
-                  <img src="/client3.svg" alt="Cliente 3" className="h-6 opacity-50 hover:opacity-70 transition-opacity" />
-                </div>
-                <div className="text-xs text-slate-500">
-                  +500 empresas confiam • Protegido por Supabase
-                </div>
-                <div className="flex items-center justify-center gap-2 text-xs text-green-400">
-                  <ShieldCheck className="w-4 h-4" />
-                  Seus dados estão seguros conosco
-                </div>
-              </motion.div>
+              {/* Trust indicators */}
+              <div className="flex items-center justify-center gap-2 text-xs text-green-400 pt-4">
+                <ShieldCheck className="w-4 h-4" />
+                Seus dados estão seguros conosco
+              </div>
             </CardContent>
           </Card>
         </motion.div>
-      </AnimatePresence>
+      </div>
+
+      {/* Features Section */}
+      <section className="relative z-10 py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Tudo que você precisa para crescer
+            </h2>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              Ferramentas poderosas que automatizam sua gestão financeira
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + index * 0.1, duration: 0.6 }}
+                className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
+              >
+                <div className="mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+                <p className="text-slate-400 leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="relative z-10 py-20 px-6 bg-slate-800/30">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold text-white mb-4">
+              O que nossos clientes dizem
+            </h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + index * 0.1, duration: 0.6 }}
+                className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50"
+              >
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-slate-200 text-lg mb-6 leading-relaxed">
+                  "{testimonial.text}"
+                </p>
+                <div>
+                  <div className="font-semibold text-white">{testimonial.name}</div>
+                  <div className="text-slate-400 text-sm">{testimonial.company}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 py-8 px-6 border-t border-slate-700/50">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2 text-slate-400">
+            <img 
+              src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
+              alt="Logo" 
+              className="h-6 w-auto"
+            />
+            <span>© 2024 FinanceControl. Todos os direitos reservados.</span>
+          </div>
+          <div className="text-xs text-slate-500">
+            Protegido por Supabase • SSL Certificado
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
