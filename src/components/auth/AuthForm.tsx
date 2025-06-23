@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -169,7 +168,7 @@ export const AuthForm = () => {
               {socialLoading === 'microsoft' ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <img src="/microsoft.svg" alt="Microsoft" className="h-5 w-5" />
+                <img src="/microsoft-logo.png" alt="Microsoft" className="h-5 w-5" />
               )}
               {socialLoading === 'microsoft' ? 'Conectando...' : 'Entrar com Microsoft'}
             </button>
