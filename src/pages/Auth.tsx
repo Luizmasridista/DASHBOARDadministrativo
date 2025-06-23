@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Lock, Mail, ShieldCheck, BarChart3, TrendingUp, Users, Zap, CheckCircle, Star, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, BarChart3, TrendingUp, Users, Zap, CheckCircle, Star, Loader2, FileSpreadsheet, Calculator, PieChart, Calendar, Settings, Download, Bell, Database } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -152,18 +152,59 @@ const Auth = () => {
     "Exportação para Excel e PDF com um clique"
   ];
 
-  const testimonials = [
+  // Platform tools and functionalities
+  const platformTools = [
     {
-      name: "Maria Silva",
-      company: "TechStart Ltda",
-      text: "Economizamos 15 horas por semana na gestão financeira. Incrível!",
-      rating: 5
+      icon: <FileSpreadsheet className="w-6 h-6 text-green-500" />,
+      title: "Planilhas Inteligentes",
+      description: "Conecte e sincronize automaticamente suas planilhas do Google Sheets e Excel"
     },
     {
-      name: "João Santos",
-      company: "Inovação Digital",
-      text: "A melhor ferramenta para controle financeiro que já usamos.",
-      rating: 5
+      icon: <Calculator className="w-6 h-6 text-blue-500" />,
+      title: "Calculadora Financeira",
+      description: "Ferramentas avançadas para cálculos de ROI, juros compostos e projeções"
+    },
+    {
+      icon: <PieChart className="w-6 h-6 text-purple-500" />,
+      title: "Dashboard Interativo",
+      description: "Gráficos e métricas em tempo real com análise de tendências automatizada"
+    },
+    {
+      icon: <Calendar className="w-6 h-6 text-orange-500" />,
+      title: "Planejamento Mensal",
+      description: "Organize orçamentos e metas com cronogramas personalizáveis"
+    },
+    {
+      icon: <Settings className="w-6 h-6 text-gray-500" />,
+      title: "Automação de Processos",
+      description: "Configure fluxos automáticos para relatórios e notificações"
+    },
+    {
+      icon: <Download className="w-6 h-6 text-indigo-500" />,
+      title: "Exportação Avançada",
+      description: "Exporte dados em múltiplos formatos: Excel, PDF, CSV com formatação personalizada"
+    }
+  ];
+
+  // Software screenshots data
+  const softwareScreenshots = [
+    {
+      title: "Dashboard Principal",
+      description: "Interface principal com visão geral completa dos seus dados financeiros, gráficos interativos e métricas em tempo real.",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center",
+      features: ["Gráficos em tempo real", "Métricas personalizáveis", "Filtros avançados"]
+    },
+    {
+      title: "Análise de Dados",
+      description: "Ferramenta de análise avançada com IA integrada para identificar padrões e oportunidades de crescimento.",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&crop=center",
+      features: ["IA para análise", "Previsões automáticas", "Relatórios detalhados"]
+    },
+    {
+      title: "Integração com Planilhas",
+      description: "Conecte automaticamente suas planilhas existentes e mantenha todos os dados sincronizados em tempo real.",
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop&crop=center",
+      features: ["Sincronização automática", "Múltiplos formatos", "Backup seguro"]
     }
   ];
 
@@ -229,20 +270,23 @@ const Auth = () => {
             ))}
           </div>
 
-          {/* Social Proof */}
-          <div className="flex items-center gap-6 pt-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">500+</div>
-              <div className="text-sm text-slate-400">Empresas ativas</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">99.9%</div>
-              <div className="text-sm text-slate-400">Uptime</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">4.9★</div>
-              <div className="text-sm text-slate-400">Avaliação</div>
-            </div>
+          {/* Platform Tools */}
+          <div className="grid grid-cols-2 gap-4 pt-6">
+            {platformTools.map((tool, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
+                className="bg-slate-800/40 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  {tool.icon}
+                  <h3 className="text-sm font-semibold text-white">{tool.title}</h3>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">{tool.description}</p>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
 
@@ -524,8 +568,9 @@ const Auth = () => {
         </div>
       </section>
 
+      {/* Software Screenshots Section */}
       <section className="relative z-10 py-20 px-6 bg-slate-800/30">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -533,30 +578,69 @@ const Auth = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-white mb-4">
-              O que nossos clientes dizem
+              Veja o sistema em ação
             </h2>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              Interface intuitiva e poderosa que facilita sua gestão financeira
+            </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
+          <div className="space-y-16">
+            {softwareScreenshots.map((screenshot, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + index * 0.1, duration: 0.6 }}
-                className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50"
+                transition={{ delay: 0.2 + index * 0.2, duration: 0.8 }}
+                className={`grid lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}
               >
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
+                {/* Screenshot */}
+                <div className={`${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+                    <div className="relative bg-slate-800/60 backdrop-blur-sm rounded-2xl p-4 border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300">
+                      <img 
+                        src={screenshot.image}
+                        alt={screenshot.title}
+                        className="w-full h-64 lg:h-80 object-cover rounded-xl shadow-2xl"
+                      />
+                      <div className="absolute top-8 left-8 right-8">
+                        <div className="bg-slate-900/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-slate-700/50">
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-1.5">
+                              <div className="w-3 h-3 bg-red-500 rounded-full" />
+                              <div className="w-3 h-3 bg-yellow-500 rounded-full" />
+                              <div className="w-3 h-3 bg-green-500 rounde d-full" />
+                            </div>
+                            <div className="text-slate-300 text-sm font-medium ml-4">
+                              FinanceControl - {screenshot.title}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-slate-200 text-lg mb-6 leading-relaxed">
-                  "{testimonial.text}"
-                </p>
-                <div>
-                  <div className="font-semibold text-white">{testimonial.name}</div>
-                  <div className="text-slate-400 text-sm">{testimonial.company}</div>
+
+                {/* Content */}
+                <div className={`space-y-6 ${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
+                  <div>
+                    <h3 className="text-3xl font-bold text-white mb-4">
+                      {screenshot.title}
+                    </h3>
+                    <p className="text-lg text-slate-300 leading-relaxed">
+                      {screenshot.description}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {screenshot.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                        <span className="text-slate-200">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             ))}
