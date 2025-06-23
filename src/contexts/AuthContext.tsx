@@ -49,12 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    // Use the current domain instead of localhost
-    const currentDomain = window.location.origin;
-    const redirectUrl = currentDomain.includes('localhost') ? 
-      'https://8ee9fe33-c5ae-4007-b793-10e1da33a748.lovableproject.com/' : 
-      `${currentDomain}/`;
-    
+    // Use dynamic redirect URL based on current environment
+    const redirectUrl = window.location.origin + '/';
     console.log('Sign up redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signUp({ 
@@ -70,14 +66,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     console.log('Attempting Google login...');
     
-    // Use the Lovable project domain for redirect
-    const redirectUrl = 'https://8ee9fe33-c5ae-4007-b793-10e1da33a748.lovableproject.com/';
+    // Use current origin for redirect to ensure consistency
+    const redirectUrl = window.location.origin + '/';
     console.log('Google login redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: redirectUrl
+        redirectTo: redirectUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
       }
     });
     
@@ -86,8 +86,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithMicrosoft = async () => {
-    // Use the Lovable project domain for redirect
-    const redirectUrl = 'https://8ee9fe33-c5ae-4007-b793-10e1da33a748.lovableproject.com/';
+    // Use current origin for redirect
+    const redirectUrl = window.location.origin + '/';
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
