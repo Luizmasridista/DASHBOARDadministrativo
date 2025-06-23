@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -76,7 +77,6 @@ const Auth = () => {
 
   const validateEmail = (value: string) => {
     if (!value) return "O email é obrigatório.";
-    // Simple email regex
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) return "Email inválido.";
     return "";
   };
@@ -88,77 +88,95 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 relative overflow-hidden">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-blue-700/20 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-pink-500/10 rounded-full blur-2xl animate-pulse-slower" />
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-slate-900">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800/50 via-slate-900 to-slate-900" />
       </div>
+      
       <AnimatePresence>
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 40 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="w-full max-w-md z-10"
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="w-full max-w-md z-10 relative"
         >
-          <Card className="bg-slate-800/90 backdrop-blur-sm border-slate-700 shadow-2xl relative">
+          <Card className="bg-slate-800/95 backdrop-blur-sm border-slate-700/50 shadow-2xl">
             <div className="absolute top-4 right-4 z-10">
               <ThemeToggle />
             </div>
-            <CardHeader className="text-center space-y-4 pb-4">
+            
+            <CardHeader className="text-center space-y-6 pb-6">
+              {/* Logo Section */}
               <div className="flex justify-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-full p-4 border border-white/20">
+                <div className="bg-slate-700/50 backdrop-blur-sm rounded-2xl px-8 py-4 border border-slate-600/50">
                   <img 
                     src="/lovable-uploads/d206fe24-569e-4a35-96a6-2a9262522005.png" 
                     alt="Logo da Empresa" 
-                    className="h-16 w-auto"
+                    className="h-12 w-auto"
                   />
                 </div>
               </div>
-              <div className="space-y-1">
-                <CardTitle className="text-3xl font-bold text-white">
-                  Controle financeiro fácil e seguro para sua empresa
+              
+              {/* Title and Description */}
+              <div className="space-y-3">
+                <CardTitle className="text-2xl font-semibold text-white leading-tight">
+                  Controle financeiro fácil e<br />seguro para sua empresa
                 </CardTitle>
-                <CardDescription className="text-slate-300 text-base">
-                  Acesse relatórios em tempo real, segurança de dados garantida, suporte dedicado.
+                <CardDescription className="text-slate-400 text-sm leading-relaxed">
+                  Acesse relatórios em tempo real, segurança de dados<br />garantida, suporte dedicado.
                 </CardDescription>
               </div>
             </CardHeader>
-            {/* Social login buttons */}
-            <CardContent className="space-y-4">
-              <div className="flex flex-col gap-2 mb-2">
-                <button type="button" className="flex items-center justify-center gap-2 w-full py-2 rounded-md border border-slate-600 bg-slate-700/60 hover:bg-slate-700 transition-all text-white font-medium">
-                  <img src="/google.svg" alt="Google" className="h-5 w-5" /> Entrar com Google
+
+            <CardContent className="space-y-6">
+              {/* Social Login Buttons */}
+              <div className="space-y-3">
+                <button 
+                  type="button" 
+                  className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-lg border border-slate-600/50 bg-slate-700/30 hover:bg-slate-700/50 transition-all text-white font-medium text-sm"
+                >
+                  <img src="/google.svg" alt="Google" className="h-5 w-5" />
+                  Entrar com Google
                 </button>
-                <button type="button" className="flex items-center justify-center gap-2 w-full py-2 rounded-md border border-slate-600 bg-slate-700/60 hover:bg-slate-700 transition-all text-white font-medium">
-                  <img src="/microsoft.svg" alt="Microsoft" className="h-5 w-5" /> Entrar com Microsoft
+                <button 
+                  type="button" 
+                  className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-lg border border-slate-600/50 bg-slate-700/30 hover:bg-slate-700/50 transition-all text-white font-medium text-sm"
+                >
+                  <img src="/microsoft.svg" alt="Microsoft" className="h-5 w-5" />
+                  Entrar com Microsoft
                 </button>
               </div>
-              <div className="flex items-center gap-2 my-2">
-                <div className="flex-1 h-px bg-slate-600" />
-                <span className="text-xs text-slate-400">ou</span>
-                <div className="flex-1 h-px bg-slate-600" />
+
+              {/* Divider */}
+              <div className="flex items-center gap-4 my-6">
+                <div className="flex-1 h-px bg-slate-600/50" />
+                <span className="text-xs text-slate-500 font-medium">ou</span>
+                <div className="flex-1 h-px bg-slate-600/50" />
               </div>
+
+              {/* Tabs for Login/Signup */}
               <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 border border-slate-600">
+                <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 border border-slate-600/50 p-1">
                   <TabsTrigger 
                     value="signin" 
-                    className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white"
+                    className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-sm font-medium"
                   >
                     Entrar
                   </TabsTrigger>
                   <TabsTrigger 
                     value="signup"
-                    className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white"
+                    className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-sm font-medium"
                   >
                     Criar Conta
                   </TabsTrigger>
                 </TabsList>
+
                 <TabsContent value="signin" className="mt-6">
-                  <form onSubmit={handleSignIn} className="space-y-4">
+                  <form onSubmit={handleSignIn} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-slate-200 font-medium flex items-center gap-1">
+                      <Label htmlFor="email" className="text-slate-300 text-sm font-medium flex items-center gap-2">
                         <Mail className="w-4 h-4" /> Email
                       </Label>
                       <Input
@@ -172,7 +190,7 @@ const Auth = () => {
                         required
                         aria-invalid={!!emailError}
                         aria-describedby="email-error"
-                        className={`bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500 animate-shake' : ''}`}
+                        className={`bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
                         placeholder="seu@email.com"
                       />
                       <AnimatePresence>
@@ -191,27 +209,36 @@ const Auth = () => {
                         )}
                       </AnimatePresence>
                     </div>
-                    <div className="space-y-2 relative">
-                      <Label htmlFor="password" className="text-slate-200 font-medium flex items-center gap-1">
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-slate-300 text-sm font-medium flex items-center gap-2">
                         <Lock className="w-4 h-4" /> Senha
                       </Label>
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          setPasswordError(validatePassword(e.target.value));
-                        }}
-                        required
-                        aria-invalid={!!passwordError}
-                        aria-describedby="password-error"
-                        className={`bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 pr-10 ${passwordError ? 'border-red-500 focus:border-red-500 focus:ring-red-500 animate-shake' : ''}`}
-                        placeholder="••••••••"
-                      />
-                      <button type="button" tabIndex={-1} aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} onClick={() => setShowPassword(v => !v)} className="absolute right-2 top-8 text-slate-400 hover:text-slate-200 transition-all">
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                            setPasswordError(validatePassword(e.target.value));
+                          }}
+                          required
+                          aria-invalid={!!passwordError}
+                          aria-describedby="password-error"
+                          className={`bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 pr-12 ${passwordError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
+                          placeholder="••••••••"
+                        />
+                        <button 
+                          type="button" 
+                          tabIndex={-1} 
+                          aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} 
+                          onClick={() => setShowPassword(v => !v)} 
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
                       <AnimatePresence>
                         {passwordError && (
                           <motion.div
@@ -227,13 +254,16 @@ const Auth = () => {
                           </motion.div>
                         )}
                       </AnimatePresence>
-                      <div className="flex justify-end mt-1">
-                        <a href="#" className="text-xs text-blue-400 hover:underline focus:underline focus:outline-none">Esqueceu a senha?</a>
+                      <div className="flex justify-end mt-2">
+                        <a href="#" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                          Esqueceu a senha?
+                        </a>
                       </div>
                     </div>
+                    
                     <Button 
                       type="submit" 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 mt-6 transition-all duration-200" 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 h-12 text-sm transition-all duration-200 shadow-lg" 
                       disabled={loading || !!emailError || !!passwordError}
                     >
                       {loading ? "Entrando..." : "Acessar minha conta"}
@@ -242,9 +272,9 @@ const Auth = () => {
                 </TabsContent>
                 
                 <TabsContent value="signup" className="mt-6">
-                  <form onSubmit={handleSignUp} className="space-y-4">
+                  <form onSubmit={handleSignUp} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="signup-email" className="text-slate-200 font-medium">
+                      <Label htmlFor="signup-email" className="text-slate-300 text-sm font-medium">
                         Email
                       </Label>
                       <Input
@@ -258,7 +288,7 @@ const Auth = () => {
                         required
                         aria-invalid={!!emailError}
                         aria-describedby="signup-email-error"
-                        className={`bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500 animate-shake' : ''}`}
+                        className={`bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
                         placeholder="seu@email.com"
                       />
                       <AnimatePresence>
@@ -278,7 +308,7 @@ const Auth = () => {
                       </AnimatePresence>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-password" className="text-slate-200 font-medium">
+                      <Label htmlFor="signup-password" className="text-slate-300 text-sm font-medium">
                         Senha
                       </Label>
                       <Input
@@ -293,7 +323,7 @@ const Auth = () => {
                         minLength={6}
                         aria-invalid={!!passwordError}
                         aria-describedby="signup-password-error"
-                        className={`bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 ${passwordError ? 'border-red-500 focus:border-red-500 focus:ring-red-500 animate-shake' : ''}`}
+                        className={`bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 ${passwordError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
                         placeholder="••••••••"
                       />
                       <AnimatePresence>
@@ -314,7 +344,7 @@ const Auth = () => {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 mt-6 transition-all duration-200" 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 h-12 text-sm transition-all duration-200 shadow-lg" 
                       disabled={loading || !!emailError || !!passwordError}
                     >
                       {loading ? "Criando conta..." : "Criar Conta"}
@@ -322,16 +352,20 @@ const Auth = () => {
                   </form>
                 </TabsContent>
               </Tabs>
-              {/* Social proof/testimonials */}
-              <div className="mt-8 mb-2 flex flex-col items-center gap-2">
-                <div className="flex gap-4">
-                  <img src="/client1.svg" alt="Cliente 1" className="h-8" />
-                  <img src="/client2.svg" alt="Cliente 2" className="h-8" />
-                  <img src="/client3.svg" alt="Cliente 3" className="h-8" />
+
+              {/* Social Proof Section */}
+              <div className="mt-8 space-y-4 text-center">
+                <div className="flex justify-center gap-6">
+                  <img src="/client1.svg" alt="Cliente 1" className="h-6 opacity-60" />
+                  <img src="/client2.svg" alt="Cliente 2" className="h-6 opacity-60" />
+                  <img src="/client3.svg" alt="Cliente 3" className="h-6 opacity-60" />
                 </div>
-                <div className="text-xs text-slate-400 mt-2">+500 empresas confiam • Protegido por Supabase</div>
-                <div className="flex items-center gap-1 text-xs text-green-400 mt-1">
-                  <ShieldCheck className="w-4 h-4" /> Seus dados estão seguros conosco
+                <div className="text-xs text-slate-500">
+                  +500 empresas confiam • Protegido por Supabase
+                </div>
+                <div className="flex items-center justify-center gap-2 text-xs text-green-400">
+                  <ShieldCheck className="w-4 h-4" />
+                  Seus dados estão seguros conosco
                 </div>
               </div>
             </CardContent>
