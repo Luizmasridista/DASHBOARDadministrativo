@@ -191,19 +191,19 @@ const Auth = () => {
     {
       title: "Dashboard Principal",
       description: "Interface principal com visão geral completa dos seus dados financeiros, gráficos interativos e métricas em tempo real.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center",
+      image: "/screenshots/dashboard-principal.jpg",
       features: ["Gráficos em tempo real", "Métricas personalizáveis", "Filtros avançados"]
     },
     {
       title: "Análise de Dados",
       description: "Ferramenta de análise avançada com IA integrada para identificar padrões e oportunidades de crescimento.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&crop=center",
+      image: "/screenshots/analise-dados.jpg",
       features: ["IA para análise", "Previsões automáticas", "Relatórios detalhados"]
     },
     {
       title: "Integração com Planilhas",
       description: "Conecte automaticamente suas planilhas existentes e mantenha todos os dados sincronizados em tempo real.",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop&crop=center",
+      image: "/screenshots/integracao-planilhas.jpg",
       features: ["Sincronização automática", "Múltiplos formatos", "Backup seguro"]
     }
   ];
