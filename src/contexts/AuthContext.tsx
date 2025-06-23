@@ -65,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirect: true,
         redirectTo: `${window.location.origin}/`
       }
     });
@@ -76,7 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
-        redirect: true,
         redirectTo: `${window.location.origin}/`
       }
     });
