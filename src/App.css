@@ -40,3 +40,27 @@
 .read-the-docs {
   color: #888;
 }
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+.animate-shake {
+  animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .7; }
+}
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(.4,0,.6,1) infinite;
+}
+.animate-pulse-slower {
+  animation: pulse 8s cubic-bezier(.4,0,.6,1) infinite;
+}
