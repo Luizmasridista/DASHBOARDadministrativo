@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -56,11 +57,23 @@
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: .7; }
+  50% { opacity: .5; }
 }
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .3; }
+}
+
+@keyframes pulse-slower {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .2; }
+}
+
 .animate-pulse-slow {
-  animation: pulse 4s cubic-bezier(.4,0,.6,1) infinite;
+  animation: pulse-slow 4s cubic-bezier(.4,0,.6,1) infinite;
 }
+
 .animate-pulse-slower {
-  animation: pulse 8s cubic-bezier(.4,0,.6,1) infinite;
+  animation: pulse-slower 6s cubic-bezier(.4,0,.6,1) infinite;
 }
