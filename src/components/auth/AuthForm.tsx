@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,8 +10,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Lock, Mail, ShieldCheck, Loader2 } from "lucide-react";
-
-const GOOGLE_CLIENT_ID = '1059313076569-cg0vrrcjnj6hs6nkankd4ld33elpjp4u.apps.googleusercontent.com';
 
 export const AuthForm = () => {
   const [email, setEmail] = useState("");
@@ -91,8 +90,10 @@ export const AuthForm = () => {
           title: "Login realizado com sucesso!",
           description: `Conectado com ${provider === 'google' ? 'Google' : 'Microsoft'}.`,
         });
+        navigate("/");
       }
     } catch (error: any) {
+      console.error(`Error with ${provider} login:`, error);
       toast({
         title: "Erro inesperado",
         description: error?.message || "Tente novamente em alguns instantes.",
@@ -101,13 +102,6 @@ export const AuthForm = () => {
     } finally {
       setSocialLoading(null);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    const redirectUri = window.location.origin + '/auth';
-    const scope = 'openid email profile';
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
-    window.location.href = url;
   };
 
   const validateEmail = (value: string) => {
@@ -156,7 +150,7 @@ export const AuthForm = () => {
           >
             <button 
               type="button" 
-              onClick={handleGoogleLogin}
+              onClick={() => handleSocialLogin('google')}
               disabled={socialLoading !== null}
               className="flex items-center justify-center gap-3 w-full py-3.5 px-4 rounded-xl border border-slate-600/40 bg-slate-700/40 hover:bg-slate-700/60 transition-all duration-200 text-white font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
