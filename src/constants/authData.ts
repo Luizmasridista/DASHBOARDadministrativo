@@ -66,21 +66,21 @@ export const platformTools = [
 
 export const softwareScreenshots = [
   {
-    title: "Dashboard Principal",
-    description: "Interface principal com visão geral completa dos seus dados financeiros, gráficos interativos e métricas em tempo real.",
-    image: "/screenshots/dashboard-principal.jpg",
-    features: ["Gráficos em tempo real", "Métricas personalizáveis", "Filtros avançados"]
+    title: "Painel Executivo Completo",
+    description: "Dashboard executivo com visão 360° das suas finanças. Acompanhe receitas, despesas, lucro líquido e margem de lucro em tempo real. Métricas avançadas como ROI, Burn Rate e projeções automáticas para tomada de decisão estratégica.",
+    image: "/lovable-uploads/5b8142c5-1f87-48b4-865b-a53727dc76e6.png",
+    features: ["Métricas executivas em tempo real", "Análise de ROI e margem de lucro", "Projeções automáticas de crescimento", "Alertas de performance financeira"]
   },
   {
-    title: "Análise de Dados",
-    description: "Ferramenta de análise avançada com IA integrada para identificar padrões e oportunidades de crescimento.",
-    image: "/screenshots/analise-dados.jpg",
-    features: ["IA para análise", "Previsões automáticas", "Relatórios detalhados"]
+    title: "Projeção Inteligente de Fluxo de Caixa",
+    description: "Sistema avançado de projeção de fluxo de caixa baseado em tendências históricas e machine learning. Visualize a evolução do seu saldo ao longo do tempo com gráficos interativos e análises preditivas para planejamento estratégico.",
+    image: "/lovable-uploads/6d3325f0-254d-4929-9469-e5d64ccac8bc.png",
+    features: ["Projeções baseadas em IA", "Análise de tendências históricas", "Gráficos interativos avançados", "Planejamento de fluxo futuro"]
   },
   {
-    title: "Integração com Planilhas",
-    description: "Conecte automaticamente suas planilhas existentes e mantenha todos os dados sincronizados em tempo real.",
-    image: "/screenshots/integracao-planilhas.jpg",
-    features: ["Sincronização automática", "Múltiplos formatos", "Backup seguro"]
+    title: "Assistente IA Financeiro",
+    description: "Assistente de inteligência artificial integrado que analisa seus dados financeiros e fornece insights personalizados. Receba recomendações estratégicas, detecte riscos e oportunidades automaticamente com análise financeira inteligente.",
+    image: "/lovable-uploads/26903e9b-080e-4a47-a43c-0a0ec3bd4f81.png",
+    features: ["Análise financeira por IA", "Recomendações personalizadas", "Detecção automática de riscos", "Chat inteligente para consultas"]
   }
 ];
