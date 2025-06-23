@@ -69,17 +69,22 @@ export const AuthForm = () => {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'microsoft') => {
+    console.log(`Starting ${provider} login...`);
     setSocialLoading(provider);
     
     try {
       let result;
       if (provider === 'google') {
+        console.log('Calling signInWithGoogle...');
         result = await signInWithGoogle();
       } else {
         result = await signInWithMicrosoft();
       }
       
+      console.log(`${provider} login result:`, result);
+      
       if (result?.error) {
+        console.error(`${provider} login error:`, result.error);
         toast({
           title: "Erro ao fazer login",
           description: `Erro ao conectar com ${provider === 'google' ? 'Google' : 'Microsoft'}: ${result.error.message}`,
@@ -150,7 +155,10 @@ export const AuthForm = () => {
           >
             <button 
               type="button" 
-              onClick={() => handleSocialLogin('google')}
+              onClick={() => {
+                console.log('Google button clicked');
+                handleSocialLogin('google');
+              }}
               disabled={socialLoading !== null}
               className="flex items-center justify-center gap-3 w-full py-3.5 px-4 rounded-xl border border-slate-600/40 bg-slate-700/40 hover:bg-slate-700/60 transition-all duration-200 text-white font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
