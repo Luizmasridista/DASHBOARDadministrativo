@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Lock, Mail, ShieldCheck, Loader2 } from "lucide-react";
 
+const GOOGLE_CLIENT_ID = '1059313076569-cg0vrrcjnj6hs6nkankd4ld33elpjp4u.apps.googleusercontent.com';
+
 export const AuthForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -101,6 +103,13 @@ export const AuthForm = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    const redirectUri = window.location.origin + '/auth';
+    const scope = 'openid email profile';
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
+    window.location.href = url;
+  };
+
   const validateEmail = (value: string) => {
     if (!value) return "O email é obrigatório.";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) return "Email inválido.";
@@ -147,7 +156,7 @@ export const AuthForm = () => {
           >
             <button 
               type="button" 
-              onClick={() => handleSocialLogin('google')}
+              onClick={handleGoogleLogin}
               disabled={socialLoading !== null}
               className="flex items-center justify-center gap-3 w-full py-3.5 px-4 rounded-xl border border-slate-600/40 bg-slate-700/40 hover:bg-slate-700/60 transition-all duration-200 text-white font-medium text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
@@ -168,7 +177,7 @@ export const AuthForm = () => {
               {socialLoading === 'microsoft' ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <img src="/microsoft-logo.png" alt="Microsoft" className="h-5 w-5" />
+                <img src="/Microsoft.png" alt="Microsoft" className="h-7 w-7 object-contain" />
               )}
               {socialLoading === 'microsoft' ? 'Conectando...' : 'Entrar com Microsoft'}
             </button>
