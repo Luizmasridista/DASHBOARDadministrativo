@@ -64,27 +64,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    console.log('Attempting Google login...');
+    console.log('=== GOOGLE LOGIN DEBUG START ===');
+    console.log('Current location:', window.location);
+    console.log('User agent:', navigator.userAgent);
     
-    // Always use the Lovable domain - never localhost
-    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
-    
-    console.log('Google login redirect URL:', redirectUrl);
-    
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectUrl,
-        skipBrowserRedirect: false,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    try {
+      // Try the most basic Google OAuth call first
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'https://dashkaizen-financeiro.lovable.app/',
         }
+      });
+      
+      console.log('Supabase OAuth response:', { data, error });
+      
+      if (error) {
+        console.error('Supabase OAuth error details:', {
+          message: error.message,
+          status: error.status,
+          details: error
+        });
       }
-    });
-    
-    console.log('Google login result:', { error });
-    return { error };
+      
+      return { error };
+      
+    } catch (err) {
+      console.error('Unexpected error during Google login:', err);
+      return { error: err };
+    } finally {
+      console.log('=== GOOGLE LOGIN DEBUG END ===');
+    }
   };
 
   const signInWithMicrosoft = async () => {
