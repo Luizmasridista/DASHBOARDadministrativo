@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 
 const Auth = lazy(() => import("./pages/Auth"));
+const CompleteGoogleSignup = lazy(() => import("./pages/CompleteGoogleSignup"));
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,11 @@ const App = () => (
               <Route path="/auth" element={
                 <Suspense fallback={<div>Loading...</div>}>
                   <Auth />
+                </Suspense>
+              } />
+              <Route path="/complete-google-signup" element={
+                <Suspense fallback={<div>Loading...</div>}>
+                  <CompleteGoogleSignup />
                 </Suspense>
               } />
             </Routes>

@@ -1,99 +1,40 @@
-import { useState, useEffect } from "react";
+
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
-import Dashboard from "@/components/Dashboard";
-import Settings from "@/components/Settings";
-import { MobileHeader } from "@/components/MobileHeader";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import ConnectSheetWithOAuth from "@/components/ConnectSheetWithOAuth";
+import { Dashboard } from "@/components/Dashboard";
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState("dashboard");
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, isNewGoogleUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
+    console.log('Index - Auth state:', { user: !!user, loading, isNewGoogleUser });
+    
+    if (!loading) {
+      if (!user) {
+        console.log('No user, redirecting to auth');
+        navigate("/auth");
+      } else if (isNewGoogleUser) {
+        console.log('New Google user, redirecting to complete signup');
+        navigate("/complete-google-signup");
+      }
     }
-  }, [user, loading, navigate]);
-
-  useEffect(() => {
-    const handleNavigateToConnect = () => {
-      console.log("Navigating to connect sheet section");
-      setActiveSection("connect");
-    };
-
-    window.addEventListener('navigateToConnect', handleNavigateToConnect);
-
-    return () => {
-      window.removeEventListener('navigateToConnect', handleNavigateToConnect);
-    };
-  }, []);
+  }, [user, loading, isNewGoogleUser, navigate]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
-  if (!user) {
+  if (!user || isNewGoogleUser) {
     return null;
   }
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case "dashboard":
-        return <Dashboard />;
-      case "connect":
-        return <ConnectSheetWithOAuth />;
-      case "settings":
-        return <Settings />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
-  const getSectionTitle = () => {
-    switch (activeSection) {
-      case "dashboard":
-        return "Painel Financeiro";
-      case "connect":
-        return "Conectar Planilha";
-      case "settings":
-        return "Configurações";
-      default:
-        return "Painel Financeiro";
-    }
-  };
-
-  return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-        <SidebarInset className="flex-1">
-          <MobileHeader title={getSectionTitle()} />
-          <main className="flex-1 p-4 md:p-6 overflow-auto bg-background">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Bem-vindo, {user.email}</span>
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <Button variant="outline" size="sm" onClick={signOut}>
-                  Sair
-                </Button>
-              </div>
-            </div>
-            {renderContent()}
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
-  );
+  return <Dashboard />;
 };
 
 export default Index;

@@ -12,6 +12,8 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error: any }>;
   signInWithMicrosoft: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  isNewGoogleUser: boolean;
+  setIsNewGoogleUser: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,12 +22,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isNewGoogleUser, setIsNewGoogleUser] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session);
+        
+        // Check if this is a new Google user
+        if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
+          const isNewUser = session?.user?.created_at === session?.user?.last_sign_in_at;
+          if (isNewUser) {
+            console.log('New Google user detected, redirecting to completion');
+            setIsNewGoogleUser(true);
+          }
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -112,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setIsNewGoogleUser(false);
   };
 
   const value = {
@@ -123,6 +137,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithGoogle,
     signInWithMicrosoft,
     signOut,
+    isNewGoogleUser,
+    setIsNewGoogleUser,
   };
 
   return (
