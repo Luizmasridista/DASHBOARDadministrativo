@@ -183,21 +183,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, loading]);
 
   const signIn = async (email: string, password: string) => {
+    console.log('🔐 === EMAIL/PASSWORD SIGN IN START ===');
+    console.log('🔐 Email:', email);
+    
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    console.log('🔐 Sign in result - Error:', error);
+    console.log('🔐 === EMAIL/PASSWORD SIGN IN END ===');
+    
     return { error };
   };
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
-    console.log('Sign up redirect URL:', redirectUrl);
+    console.log('📧 === EMAIL/PASSWORD SIGN UP START ===');
+    console.log('📧 Email:', email);
     
-    const { error } = await supabase.auth.signUp({ 
+    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
+    console.log('📧 Sign up redirect URL:', redirectUrl);
+    
+    const { data, error } = await supabase.auth.signUp({ 
       email, 
       password, 
       options: {
         emailRedirectTo: redirectUrl
       }
     });
+    
+    console.log('📧 Sign up result - Data:', data);
+    console.log('📧 Sign up result - Error:', error);
+    console.log('📧 User created:', !!data.user);
+    console.log('📧 Session created:', !!data.session);
+    
+    if (data.user && !data.session) {
+      console.log('📧 ✅ User created but no session - EMAIL CONFIRMATION REQUIRED');
+    } else if (data.user && data.session) {
+      console.log('📧 ⚠️  User created with immediate session - NO EMAIL CONFIRMATION');
+    }
+    
+    console.log('📧 === EMAIL/PASSWORD SIGN UP END ===');
+    
     return { error };
   };
 
@@ -233,20 +257,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithMicrosoft = async () => {
-    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
+    console.log('🔷 === MICROSOFT LOGIN DEBUG START ===');
     
-    const { error } = await supabase.auth.signInWithOAuth({
+    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
+    console.log('🔷 Microsoft redirect URL:', redirectUrl);
+    
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
         redirectTo: redirectUrl
       }
     });
+    
+    console.log('🔷 Microsoft OAuth response:', { data, error });
+    console.log('🔷 === MICROSOFT LOGIN DEBUG END ===');
+    
     return { error };
   };
 
   const signOut = async () => {
+    console.log('🚪 === SIGN OUT START ===');
+    
     await supabase.auth.signOut();
     setNeedsPasswordCreation(false);
+    
+    console.log('🚪 === SIGN OUT END ===');
   };
 
   const value = {
