@@ -9,36 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      app_configurations: {
-        Row: {
-          config_key: string
-          config_value: string | null
-          created_at: string | null
-          id: string
-          is_encrypted: boolean | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          config_key: string
-          config_value?: string | null
-          created_at?: string | null
-          id?: string
-          is_encrypted?: boolean | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          config_key?: string
-          config_value?: string | null
-          created_at?: string | null
-          id?: string
-          is_encrypted?: boolean | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       despesas: {
         Row: {
           categoria: string
@@ -80,7 +50,6 @@ export type Database = {
           api_key: string
           created_at: string
           description: string | null
-          encrypted_api_key: string | null
           id: string
           last_used_at: string | null
           project_name: string
@@ -94,7 +63,6 @@ export type Database = {
           api_key: string
           created_at?: string
           description?: string | null
-          encrypted_api_key?: string | null
           id?: string
           last_used_at?: string | null
           project_name: string
@@ -108,7 +76,6 @@ export type Database = {
           api_key?: string
           created_at?: string
           description?: string | null
-          encrypted_api_key?: string | null
           id?: string
           last_used_at?: string | null
           project_name?: string
@@ -117,27 +84,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          created_at: string | null
-          id: number
-          user_id: string | null
-          username: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: never
-          user_id?: string | null
-          username?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: never
-          user_id?: string | null
-          username?: string | null
         }
         Relationships: []
       }
@@ -207,65 +153,12 @@ export type Database = {
         }
         Relationships: []
       }
-      security_audit_log: {
-        Row: {
-          action: string
-          created_at: string | null
-          error_message: string | null
-          id: string
-          ip_address: unknown | null
-          metadata: Json | null
-          resource_id: string | null
-          resource_type: string | null
-          success: boolean | null
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          ip_address?: unknown | null
-          metadata?: Json | null
-          resource_id?: string | null
-          resource_type?: string | null
-          success?: boolean | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          ip_address?: unknown | null
-          metadata?: Json | null
-          resource_id?: string | null
-          resource_type?: string | null
-          success?: boolean | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      check_user_has_password: {
-        Args: { user_id?: string }
-        Returns: boolean
-      }
-      get_decrypted_api_key: {
-        Args: { p_connection_id: string; p_user_id: string }
-        Returns: string
-      }
-      store_encrypted_api_key: {
-        Args: { p_user_id: string; p_api_key: string; p_project_name?: string }
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       connection_status: "active" | "inactive" | "error"
