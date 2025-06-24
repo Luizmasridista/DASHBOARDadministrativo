@@ -49,9 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    // Use the current page URL without any localhost references
-    const currentUrl = window.location.href;
-    const redirectUrl = currentUrl.includes('localhost') ? currentUrl : `${window.location.origin}/`;
+    // Always use the Lovable domain for redirect
+    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
     console.log('Sign up redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signUp({ 
@@ -67,23 +66,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     console.log('Attempting Google login...');
     
-    // Get the current URL and ensure it's not localhost
-    const currentOrigin = window.location.origin;
-    const currentUrl = window.location.href;
-    
-    // If we're on localhost, don't use it - use the current page URL instead
-    let redirectUrl;
-    if (currentOrigin.includes('localhost')) {
-      // If somehow we're on localhost, redirect to root
-      redirectUrl = currentUrl;
-    } else {
-      // Use the current origin
-      redirectUrl = `${currentOrigin}/`;
-    }
+    // Always use the Lovable domain - never localhost
+    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
     
     console.log('Google login redirect URL:', redirectUrl);
-    console.log('Current origin:', currentOrigin);
-    console.log('Current URL:', currentUrl);
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -102,9 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithMicrosoft = async () => {
-    // Use current origin for redirect, avoiding localhost
-    const currentOrigin = window.location.origin;
-    const redirectUrl = currentOrigin.includes('localhost') ? window.location.href : `${currentOrigin}/`;
+    // Always use the Lovable domain for redirect
+    const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
