@@ -10,28 +10,28 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('=== INDEX PAGE STATE ===');
-    console.log('User exists:', !!user);
-    console.log('Loading:', loading);
-    console.log('Needs password creation:', needsPasswordCreation);
-    console.log('User provider:', user?.app_metadata?.provider);
-    console.log('User email:', user?.email);
-    console.log('User created at:', user?.created_at);
+    console.log('🏠 === INDEX PAGE STATE ===');
+    console.log('🏠 User exists:', !!user);
+    console.log('🏠 Loading:', loading);
+    console.log('🏠 Needs password creation:', needsPasswordCreation);
+    console.log('🏠 User provider:', user?.app_metadata?.provider);
+    console.log('🏠 User email:', user?.email);
+    console.log('🏠 User created at:', user?.created_at);
     
     if (!loading) {
       if (!user) {
-        console.log('No user, redirecting to auth');
+        console.log('🏠 No user, redirecting to auth');
         navigate("/auth");
       } else if (needsPasswordCreation) {
-        console.log('User needs to create password, modal will show');
+        console.log('🏠 ✅ User needs to create password, modal will show');
       } else {
-        console.log('User authenticated and ready, showing dashboard');
+        console.log('🏠 User authenticated and ready, showing dashboard');
       }
     }
   }, [user, loading, needsPasswordCreation, navigate]);
 
   const handlePasswordCreationComplete = async () => {
-    console.log('Password creation completed, updating flags');
+    console.log('🏠 Password creation completed, updating flags');
     setNeedsPasswordCreation(false);
   };
 
@@ -50,9 +50,10 @@ const Index = () => {
     return null;
   }
 
-  console.log('=== INDEX RENDER DECISION ===');
-  console.log('Will show modal?', needsPasswordCreation && !!user.email);
-  console.log('User email for modal:', user.email);
+  console.log('🏠 === INDEX RENDER DECISION ===');
+  console.log('🏠 Will show modal?', needsPasswordCreation && !!user.email);
+  console.log('🏠 User email for modal:', user.email);
+  console.log('🏠 needsPasswordCreation flag:', needsPasswordCreation);
 
   return (
     <>

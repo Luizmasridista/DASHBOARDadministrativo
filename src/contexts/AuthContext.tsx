@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,20 +26,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [needsPasswordCreation, setNeedsPasswordCreation] = useState(false);
 
   const checkUserPasswordStatus = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('🔍 checkUserPasswordStatus: No user, exiting');
+      return;
+    }
 
-    console.log('=== DETAILED PASSWORD CHECK ===');
-    console.log('User ID:', user.id);
-    console.log('User email:', user.email);
-    console.log('User provider:', user.app_metadata?.provider);
-    console.log('User providers (all):', user.app_metadata?.providers);
-    console.log('User metadata:', user.user_metadata);
-    console.log('User email confirmed:', user.email_confirmed_at);
-    console.log('User created at:', user.created_at);
+    console.log('🔍 === DETAILED PASSWORD CHECK START ===');
+    console.log('🔍 User ID:', user.id);
+    console.log('🔍 User email:', user.email);
+    console.log('🔍 User provider:', user.app_metadata?.provider);
+    console.log('🔍 User providers (all):', user.app_metadata?.providers);
+    console.log('🔍 User metadata:', user.user_metadata);
+    console.log('🔍 User email confirmed:', user.email_confirmed_at);
+    console.log('🔍 User created at:', user.created_at);
 
     // Se não é usuário do Google, não precisa criar senha
     if (user.app_metadata?.provider !== 'google') {
-      console.log('Not a Google user, no password needed');
+      console.log('🔍 Not a Google user, no password needed');
       setNeedsPasswordCreation(false);
       return;
     }
@@ -47,25 +51,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isGoogleUser = user.app_metadata?.providers?.includes('google') || 
                         user.app_metadata?.provider === 'google';
     
-    console.log('Is Google user?', isGoogleUser);
+    console.log('🔍 Is Google user?', isGoogleUser);
 
     if (!isGoogleUser) {
-      console.log('Not confirmed as Google user, no password needed');
+      console.log('🔍 Not confirmed as Google user, no password needed');
       setNeedsPasswordCreation(false);
       return;
     }
 
     try {
+      console.log('🔍 Calling database function check_user_has_password...');
+      
       // Usa a função do banco para verificar se tem senha
       const { data: hasPassword, error } = await supabase.rpc('check_user_has_password');
       
-      console.log('Database password check result:', hasPassword);
-      console.log('Database password check error:', error);
+      console.log('🔍 Database password check result:', hasPassword);
+      console.log('🔍 Database password check error:', error);
 
       if (error) {
-        console.error('Error checking password status:', error);
+        console.error('🔍 Error checking password status:', error);
         // Para usuários Google, se houver erro, assumimos que precisa criar senha
-        console.log('Error occurred, assuming Google user needs password');
+        console.log('🔍 Error occurred, assuming Google user needs password');
         setNeedsPasswordCreation(true);
         return;
       }
@@ -76,85 +82,86 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const timeDiff = now.getTime() - userCreatedAt.getTime();
       const minutesDiff = timeDiff / (1000 * 60);
       
-      console.log('User created at:', userCreatedAt);
-      console.log('Current time:', now);
-      console.log('Minutes since creation:', minutesDiff);
+      console.log('🔍 User created at:', userCreatedAt);
+      console.log('🔍 Current time:', now);
+      console.log('🔍 Minutes since creation:', minutesDiff);
 
       // Se é usuário Google recém-criado E não tem senha, definitivamente precisa criar
       const isRecentGoogleUser = minutesDiff < 5;
-      console.log('Is recent Google user (< 5 min)?', isRecentGoogleUser);
+      console.log('🔍 Is recent Google user (< 5 min)?', isRecentGoogleUser);
 
       if (isRecentGoogleUser && !hasPassword) {
-        console.log('Recent Google user without password - NEEDS PASSWORD');
+        console.log('🔍 ✅ Recent Google user without password - NEEDS PASSWORD');
         setNeedsPasswordCreation(true);
         return;
       }
 
       // Se não é recente, mas ainda não tem senha, também precisa criar
       if (!hasPassword) {
-        console.log('Google user without password - NEEDS PASSWORD');
+        console.log('🔍 ✅ Google user without password - NEEDS PASSWORD');
         setNeedsPasswordCreation(true);
         return;
       }
 
-      console.log('Google user already has password - NO NEED');
+      console.log('🔍 ❌ Google user already has password - NO NEED');
       setNeedsPasswordCreation(false);
       
     } catch (error) {
-      console.error('Unexpected error checking password:', error);
+      console.error('🔍 Unexpected error checking password:', error);
       // Em caso de erro para usuários Google, assumimos que precisa criar senha
+      console.log('🔍 ✅ Error occurred, assuming Google user needs password');
       setNeedsPasswordCreation(true);
     }
     
-    console.log('Final needsPasswordCreation state:', needsPasswordCreation);
-    console.log('=== END DETAILED PASSWORD CHECK ===');
+    console.log('🔍 Final needsPasswordCreation state:', needsPasswordCreation);
+    console.log('🔍 === DETAILED PASSWORD CHECK END ===');
   };
 
   useEffect(() => {
-    console.log('=== AUTH CONTEXT INITIALIZATION ===');
+    console.log('🚀 === AUTH CONTEXT INITIALIZATION ===');
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('=== AUTH STATE CHANGE ===');
-        console.log('Event:', event);
-        console.log('Session exists:', !!session);
-        console.log('User exists:', !!session?.user);
+        console.log('🚀 === AUTH STATE CHANGE ===');
+        console.log('🚀 Event:', event);
+        console.log('🚀 Session exists:', !!session);
+        console.log('🚀 User exists:', !!session?.user);
         
         if (session?.user) {
-          console.log('User provider from session:', session.user.app_metadata?.provider);
-          console.log('User email from session:', session.user.email);
+          console.log('🚀 User provider from session:', session.user.app_metadata?.provider);
+          console.log('🚀 User email from session:', session.user.email);
         }
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('User signed in, will check password status after state update');
+          console.log('🚀 User signed in, will check password status after state update');
         } else if (event === 'SIGNED_OUT') {
-          console.log('User signed out, resetting flags');
+          console.log('🚀 User signed out, resetting flags');
           setNeedsPasswordCreation(false);
         }
         
         setLoading(false);
-        console.log('=== END AUTH STATE CHANGE ===');
+        console.log('🚀 === END AUTH STATE CHANGE ===');
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('=== INITIAL SESSION CHECK ===');
-      console.log('Initial session exists:', !!session);
-      console.log('Initial user exists:', !!session?.user);
+      console.log('🚀 === INITIAL SESSION CHECK ===');
+      console.log('🚀 Initial session exists:', !!session);
+      console.log('🚀 Initial user exists:', !!session?.user);
       
       if (session?.user) {
-        console.log('Initial user provider:', session.user.app_metadata?.provider);
+        console.log('🚀 Initial user provider:', session.user.app_metadata?.provider);
       }
       
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      console.log('=== END INITIAL SESSION CHECK ===');
+      console.log('🚀 === END INITIAL SESSION CHECK ===');
     });
 
     return () => subscription.unsubscribe();
@@ -162,12 +169,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Verificar senha depois que o user estiver definido
   useEffect(() => {
+    console.log('👤 User effect triggered');
+    console.log('👤 User exists:', !!user);
+    console.log('👤 Loading:', loading);
+    
     if (user && !loading) {
-      console.log('User state updated, triggering password check...');
-      // Pequeno delay para garantir que tudo está estabilizado
-      setTimeout(() => {
-        checkUserPasswordStatus();
-      }, 1000);
+      console.log('👤 User state updated, triggering password check...');
+      console.log('👤 User provider:', user.app_metadata?.provider);
+      
+      // Verificar imediatamente sem delay para debug
+      checkUserPasswordStatus();
     }
   }, [user, loading]);
 
@@ -191,7 +202,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    console.log('=== GOOGLE LOGIN DEBUG START ===');
+    console.log('🔥 === GOOGLE LOGIN DEBUG START ===');
     
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -201,10 +212,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
       
-      console.log('Supabase OAuth response:', { data, error });
+      console.log('🔥 Supabase OAuth response:', { data, error });
       
       if (error) {
-        console.error('Supabase OAuth error details:', {
+        console.error('🔥 Supabase OAuth error details:', {
           message: error.message,
           status: error.status,
           details: error
@@ -214,10 +225,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error };
       
     } catch (err) {
-      console.error('Unexpected error during Google login:', err);
+      console.error('🔥 Unexpected error during Google login:', err);
       return { error: err };
     } finally {
-      console.log('=== GOOGLE LOGIN DEBUG END ===');
+      console.log('🔥 === GOOGLE LOGIN DEBUG END ===');
     }
   };
 
