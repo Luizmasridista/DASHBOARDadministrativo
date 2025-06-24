@@ -10,20 +10,20 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Index - Auth state:', { 
-      user: !!user, 
-      loading, 
-      needsPasswordCreation,
-      userProvider: user?.app_metadata?.provider
-    });
+    console.log('=== INDEX PAGE STATE ===');
+    console.log('User exists:', !!user);
+    console.log('Loading:', loading);
+    console.log('Needs password creation:', needsPasswordCreation);
+    console.log('User provider:', user?.app_metadata?.provider);
+    console.log('User email:', user?.email);
+    console.log('User created at:', user?.created_at);
     
     if (!loading) {
       if (!user) {
         console.log('No user, redirecting to auth');
         navigate("/auth");
       } else if (needsPasswordCreation) {
-        console.log('User needs to create password, showing modal');
-        // Modal será mostrado, usuário fica nesta página
+        console.log('User needs to create password, modal will show');
       } else {
         console.log('User authenticated and ready, showing dashboard');
       }
@@ -37,8 +37,11 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Carregando...</p>
+        </div>
       </div>
     );
   }
@@ -47,8 +50,10 @@ const Index = () => {
     return null;
   }
 
-  // Se o usuário precisa criar senha, mostra o modal SOBRE o dashboard
-  // Isso bloqueia totalmente o acesso até que a senha seja criada
+  console.log('=== INDEX RENDER DECISION ===');
+  console.log('Will show modal?', needsPasswordCreation && !!user.email);
+  console.log('User email for modal:', user.email);
+
   return (
     <>
       <Dashboard />

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,12 +27,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkUserPasswordStatus = async () => {
     if (!user) return;
 
-    console.log('=== CHECKING PASSWORD STATUS ===');
+    console.log('=== DETAILED PASSWORD CHECK ===');
+    console.log('User ID:', user.id);
+    console.log('User email:', user.email);
     console.log('User provider:', user.app_metadata?.provider);
-    
+    console.log('User providers (all):', user.app_metadata?.providers);
+    console.log('User metadata:', user.user_metadata);
+    console.log('User email confirmed:', user.email_confirmed_at);
+    console.log('User created at:', user.created_at);
+
     // Se não é usuário do Google, não precisa criar senha
     if (user.app_metadata?.provider !== 'google') {
       console.log('Not a Google user, no password needed');
+      setNeedsPasswordCreation(false);
+      return;
+    }
+
+    // Verificação mais específica para usuários Google
+    const isGoogleUser = user.app_metadata?.providers?.includes('google') || 
+                        user.app_metadata?.provider === 'google';
+    
+    console.log('Is Google user?', isGoogleUser);
+
+    if (!isGoogleUser) {
+      console.log('Not confirmed as Google user, no password needed');
       setNeedsPasswordCreation(false);
       return;
     }
@@ -42,26 +59,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Usa a função do banco para verificar se tem senha
       const { data: hasPassword, error } = await supabase.rpc('check_user_has_password');
       
+      console.log('Database password check result:', hasPassword);
+      console.log('Database password check error:', error);
+
       if (error) {
         console.error('Error checking password status:', error);
-        // Em caso de erro, assume que precisa criar senha por segurança
+        // Para usuários Google, se houver erro, assumimos que precisa criar senha
+        console.log('Error occurred, assuming Google user needs password');
         setNeedsPasswordCreation(true);
         return;
       }
 
-      console.log('Database says user has password:', hasPassword);
+      // Verificação adicional: se é usuário Google recém-criado (menos de 5 minutos)
+      const userCreatedAt = new Date(user.created_at);
+      const now = new Date();
+      const timeDiff = now.getTime() - userCreatedAt.getTime();
+      const minutesDiff = timeDiff / (1000 * 60);
       
-      // Se é usuário Google e não tem senha, precisa criar
-      const needsPassword = !hasPassword;
-      console.log('User needs to create password:', needsPassword);
-      setNeedsPasswordCreation(needsPassword);
+      console.log('User created at:', userCreatedAt);
+      console.log('Current time:', now);
+      console.log('Minutes since creation:', minutesDiff);
+
+      // Se é usuário Google recém-criado E não tem senha, definitivamente precisa criar
+      const isRecentGoogleUser = minutesDiff < 5;
+      console.log('Is recent Google user (< 5 min)?', isRecentGoogleUser);
+
+      if (isRecentGoogleUser && !hasPassword) {
+        console.log('Recent Google user without password - NEEDS PASSWORD');
+        setNeedsPasswordCreation(true);
+        return;
+      }
+
+      // Se não é recente, mas ainda não tem senha, também precisa criar
+      if (!hasPassword) {
+        console.log('Google user without password - NEEDS PASSWORD');
+        setNeedsPasswordCreation(true);
+        return;
+      }
+
+      console.log('Google user already has password - NO NEED');
+      setNeedsPasswordCreation(false);
       
     } catch (error) {
       console.error('Unexpected error checking password:', error);
+      // Em caso de erro para usuários Google, assumimos que precisa criar senha
       setNeedsPasswordCreation(true);
     }
     
-    console.log('=== END PASSWORD CHECK ===');
+    console.log('Final needsPasswordCreation state:', needsPasswordCreation);
+    console.log('=== END DETAILED PASSWORD CHECK ===');
   };
 
   useEffect(() => {
@@ -75,13 +121,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Session exists:', !!session);
         console.log('User exists:', !!session?.user);
         
+        if (session?.user) {
+          console.log('User provider from session:', session.user.app_metadata?.provider);
+          console.log('User email from session:', session.user.email);
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('User signed in, will check password status');
-          // Não chamamos checkUserPasswordStatus aqui para evitar loops
-          // Vamos chamar depois que o estado for atualizado
+          console.log('User signed in, will check password status after state update');
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out, resetting flags');
           setNeedsPasswordCreation(false);
@@ -98,6 +147,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Initial session exists:', !!session);
       console.log('Initial user exists:', !!session?.user);
       
+      if (session?.user) {
+        console.log('Initial user provider:', session.user.app_metadata?.provider);
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -107,10 +160,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Separar useEffect para verificar senha depois que o user estiver definido
+  // Verificar senha depois que o user estiver definido
   useEffect(() => {
     if (user && !loading) {
-      checkUserPasswordStatus();
+      console.log('User state updated, triggering password check...');
+      // Pequeno delay para garantir que tudo está estabilizado
+      setTimeout(() => {
+        checkUserPasswordStatus();
+      }, 1000);
     }
   }, [user, loading]);
 
