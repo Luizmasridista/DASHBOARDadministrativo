@@ -8,8 +8,9 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string) => Promise<{ error: any; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
+  resendConfirmation: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,14 +84,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (error) {
         console.error('AuthProvider: Sign up error:', error);
+        return { error };
       } else {
         console.log('AuthProvider: Sign up successful, user created:', data.user);
         console.log('AuthProvider: Session created:', data.session);
+        
+        // Se não há sessão, significa que precisa confirmar email
+        const needsConfirmation = !data.session;
+        console.log('AuthProvider: Needs email confirmation:', needsConfirmation);
+        
+        return { error: null, needsConfirmation };
       }
-      
-      return { error };
     } catch (err) {
       console.error('AuthProvider: Sign up exception:', err);
+      return { error: err };
+    }
+  };
+
+  const resendConfirmation = async (email: string) => {
+    console.log('AuthProvider: Resending confirmation email for:', email);
+    
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`
+        }
+      });
+      
+      console.log('AuthProvider: Resend confirmation result:', { error });
+      return { error };
+    } catch (err) {
+      console.error('AuthProvider: Resend confirmation error:', err);
       return { error: err };
     }
   };
@@ -113,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signUp,
     signOut,
+    resendConfirmation,
   };
 
   console.log('AuthProvider: Current state:', { 

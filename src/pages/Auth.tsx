@@ -9,12 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Mail, RefreshCw } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const [showConfirmationMessage, setShowConfirmationMessage] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState("");
+  const { signIn, signUp, user, resendConfirmation } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -67,7 +71,7 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await signUp(email, password);
+      const { error, needsConfirmation } = await signUp(email, password);
       
       if (error) {
         console.error('Auth page: Sign up error:', error);
@@ -77,17 +81,57 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
-        console.log('Auth page: Sign up successful');
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Verifique seu email para confirmar a conta.",
-        });
+        console.log('Auth page: Sign up successful, needs confirmation:', needsConfirmation);
+        
+        if (needsConfirmation) {
+          setShowConfirmationMessage(true);
+          setConfirmationEmail(email);
+          toast({
+            title: "Conta criada com sucesso!",
+            description: "Verifique seu email para confirmar a conta.",
+          });
+        } else {
+          toast({
+            title: "Conta criada e ativada!",
+            description: "Você já pode usar sua conta.",
+          });
+          navigate("/");
+        }
       }
     } catch (err) {
       console.error('Auth page: Sign up exception:', err);
       toast({
         title: "Erro ao criar conta",
         description: "Erro inesperado ao criar conta",
+        variant: "destructive",
+      });
+    }
+    
+    setLoading(false);
+  };
+
+  const handleResendConfirmation = async () => {
+    setLoading(true);
+    
+    try {
+      const { error } = await resendConfirmation(confirmationEmail);
+      
+      if (error) {
+        toast({
+          title: "Erro ao reenviar email",
+          description: error.message || "Erro ao reenviar email de confirmação",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Email reenviado!",
+          description: "Verifique sua caixa de entrada (e spam).",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erro ao reenviar email",
+        description: "Erro inesperado ao reenviar email",
         variant: "destructive",
       });
     }
@@ -121,6 +165,33 @@ const Auth = () => {
         </CardHeader>
         
         <CardContent className="space-y-6">
+          {showConfirmationMessage && (
+            <Alert className="bg-blue-50 border-blue-200">
+              <Mail className="h-4 w-4" />
+              <AlertDescription className="text-blue-800">
+                <div className="space-y-3">
+                  <p>
+                    Enviamos um email de confirmação para <strong>{confirmationEmail}</strong>
+                  </p>
+                  <p className="text-sm">
+                    Verifique sua caixa de entrada (e pasta de spam). O email pode demorar alguns minutos para chegar.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResendConfirmation}
+                    disabled={loading}
+                    className="w-full"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    {loading ? "Reenviando..." : "Reenviar email"}
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 border border-slate-600">
               <TabsTrigger 
