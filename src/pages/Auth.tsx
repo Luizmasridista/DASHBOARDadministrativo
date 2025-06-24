@@ -19,29 +19,43 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('Auth page: User state changed:', user);
     if (user) {
+      console.log('Auth page: User is authenticated, redirecting to home');
       navigate("/");
     }
   }, [user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Auth page: Sign in form submitted');
     setLoading(true);
     
-    const { error } = await signIn(email, password);
-    
-    if (error) {
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        console.error('Auth page: Sign in error:', error);
+        toast({
+          title: "Erro ao fazer login",
+          description: error.message || "Erro desconhecido ao fazer login",
+          variant: "destructive",
+        });
+      } else {
+        console.log('Auth page: Sign in successful');
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo de volta.",
+        });
+        navigate("/");
+      }
+    } catch (err) {
+      console.error('Auth page: Sign in exception:', err);
       toast({
         title: "Erro ao fazer login",
-        description: error.message,
+        description: "Erro inesperado ao fazer login",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta.",
-      });
-      navigate("/");
     }
     
     setLoading(false);
@@ -49,25 +63,39 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Auth page: Sign up form submitted for:', email);
     setLoading(true);
     
-    const { error } = await signUp(email, password);
-    
-    if (error) {
+    try {
+      const { error } = await signUp(email, password);
+      
+      if (error) {
+        console.error('Auth page: Sign up error:', error);
+        toast({
+          title: "Erro ao criar conta",
+          description: error.message || "Erro desconhecido ao criar conta",
+          variant: "destructive",
+        });
+      } else {
+        console.log('Auth page: Sign up successful');
+        toast({
+          title: "Conta criada com sucesso!",
+          description: "Verifique seu email para confirmar a conta.",
+        });
+      }
+    } catch (err) {
+      console.error('Auth page: Sign up exception:', err);
       toast({
         title: "Erro ao criar conta",
-        description: error.message,
+        description: "Erro inesperado ao criar conta",
         variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Conta criada com sucesso!",
-        description: "Verifique seu email para confirmar a conta.",
       });
     }
     
     setLoading(false);
   };
+
+  console.log('Auth page: Rendering with state:', { email, loading, user: user?.email });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
