@@ -9,9 +9,18 @@ const CompleteGoogleSignup = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('=== COMPLETE GOOGLE SIGNUP PAGE ===');
+    console.log('User exists:', !!user);
+    console.log('Is new Google user:', isNewGoogleUser);
+    console.log('User provider:', user?.app_metadata?.provider);
+    console.log('User completed signup before:', user?.user_metadata?.completed_signup);
+    
     // Se não é um novo usuário do Google ou não está logado, redireciona
     if (!user || !isNewGoogleUser) {
+      console.log('Redirecting to auth - not a new Google user or no user');
       navigate("/auth");
+    } else {
+      console.log('Showing Google signup completion form');
     }
   }, [user, isNewGoogleUser, navigate]);
 

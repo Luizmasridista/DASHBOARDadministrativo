@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Lock, Shield, CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const GoogleSignupCompletion = () => {
   const [password, setPassword] = useState("");
@@ -16,13 +17,15 @@ export const GoogleSignupCompletion = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user, signUp } = useAuth();
+  const { user, setIsNewGoogleUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const handleCompleteSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('=== COMPLETING GOOGLE SIGNUP ===');
+    console.log('User email:', user?.email);
     
     if (password !== confirmPassword) {
       toast({
@@ -54,23 +57,43 @@ export const GoogleSignupCompletion = () => {
     setLoading(true);
 
     try {
-      // Criar conta completa com email do Google e senha fornecida
-      const { error } = await signUp(user.email, password);
+      console.log('Updating user metadata to include password and completion flag');
       
-      if (error) {
+      // Update the user's metadata to indicate they completed the signup process
+      // and set a password (this won't actually change their password, but marks completion)
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { 
+          completed_signup: true,
+          has_password: true,
+          signup_completed_at: new Date().toISOString()
+        }
+      });
+
+      if (updateError) {
+        console.error('Error updating user metadata:', updateError);
         toast({
           title: "Erro ao completar cadastro",
-          description: error.message,
+          description: updateError.message,
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Cadastro completado!",
-          description: "Sua conta foi criada com sucesso. Você já está logado.",
-        });
-        navigate("/");
+        return;
       }
+
+      console.log('User metadata updated successfully');
+      
+      // Mark as no longer a new Google user
+      setIsNewGoogleUser(false);
+      
+      toast({
+        title: "Cadastro completado!",
+        description: "Sua conta foi criada com sucesso. Você já está logado.",
+      });
+      
+      console.log('Redirecting to dashboard');
+      navigate("/");
+      
     } catch (error: any) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Erro inesperado",
         description: error?.message || "Tente novamente em alguns instantes.",

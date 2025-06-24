@@ -24,33 +24,93 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isNewGoogleUser, setIsNewGoogleUser] = useState(false);
 
+  const checkIfNewGoogleUser = (user: User): boolean => {
+    console.log('=== CHECKING NEW GOOGLE USER ===');
+    console.log('User provider:', user?.app_metadata?.provider);
+    console.log('User created_at:', user?.created_at);
+    console.log('User last_sign_in_at:', user?.last_sign_in_at);
+    console.log('User email_confirmed_at:', user?.email_confirmed_at);
+    console.log('User phone_confirmed_at:', user?.phone_confirmed_at);
+    
+    // Check if this is a Google user
+    if (user?.app_metadata?.provider !== 'google') {
+      console.log('Not a Google user, returning false');
+      return false;
+    }
+
+    // More robust check for new Google users
+    // If created_at and last_sign_in_at are very close (within 10 seconds), it's likely a new user
+    const createdAt = new Date(user.created_at);
+    const lastSignIn = new Date(user.last_sign_in_at || user.created_at);
+    const timeDifference = Math.abs(lastSignIn.getTime() - createdAt.getTime());
+    const isVeryRecentUser = timeDifference < 10000; // 10 seconds
+    
+    console.log('Time difference (ms):', timeDifference);
+    console.log('Is very recent user:', isVeryRecentUser);
+    
+    // Additional check: if email is not confirmed for Google users, they might be new
+    const emailNotConfirmed = !user.email_confirmed_at;
+    console.log('Email not confirmed:', emailNotConfirmed);
+    
+    // Check if user has user_metadata indicating they completed signup before
+    const hasCompletedSignup = user.user_metadata?.completed_signup === true;
+    console.log('Has completed signup:', hasCompletedSignup);
+    
+    const result = isVeryRecentUser && !hasCompletedSignup;
+    console.log('Final result - is new Google user:', result);
+    console.log('=== END CHECK ===');
+    
+    return result;
+  };
+
   useEffect(() => {
+    console.log('=== AUTH CONTEXT INITIALIZATION ===');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session);
+      async (event, session) => {
+        console.log('=== AUTH STATE CHANGE ===');
+        console.log('Event:', event);
+        console.log('Session exists:', !!session);
+        console.log('User exists:', !!session?.user);
         
-        // Check if this is a new Google user
-        if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
-          const isNewUser = session?.user?.created_at === session?.user?.last_sign_in_at;
-          if (isNewUser) {
-            console.log('New Google user detected, redirecting to completion');
-            setIsNewGoogleUser(true);
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('User signed in, checking if new Google user');
+          const isNewGoogle = checkIfNewGoogleUser(session.user);
+          setIsNewGoogleUser(isNewGoogle);
+          
+          if (isNewGoogle) {
+            console.log('New Google user detected - will redirect to completion');
+          } else {
+            console.log('Existing user or not Google - proceeding normally');
           }
+        } else if (event === 'SIGNED_OUT') {
+          console.log('User signed out, resetting new Google user flag');
+          setIsNewGoogleUser(false);
         }
         
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        console.log('=== END AUTH STATE CHANGE ===');
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
+      console.log('=== INITIAL SESSION CHECK ===');
+      console.log('Initial session exists:', !!session);
+      console.log('Initial user exists:', !!session?.user);
+      
+      if (session?.user) {
+        const isNewGoogle = checkIfNewGoogleUser(session.user);
+        setIsNewGoogleUser(isNewGoogle);
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      console.log('=== END INITIAL SESSION CHECK ===');
     });
 
     return () => subscription.unsubscribe();
