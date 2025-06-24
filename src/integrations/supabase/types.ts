@@ -254,6 +254,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_user_has_password: {
+        Args: { user_id?: string }
+        Returns: boolean
+      }
       get_decrypted_api_key: {
         Args: { p_connection_id: string; p_user_id: string }
         Returns: string
