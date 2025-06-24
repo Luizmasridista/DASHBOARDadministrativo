@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,10 +12,9 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error: any }>;
   signInWithMicrosoft: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  isNewGoogleUser: boolean;
-  setIsNewGoogleUser: (value: boolean) => void;
   needsPasswordCreation: boolean;
   setNeedsPasswordCreation: (value: boolean) => void;
+  checkUserPasswordStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,69 +23,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isNewGoogleUser, setIsNewGoogleUser] = useState(false);
   const [needsPasswordCreation, setNeedsPasswordCreation] = useState(false);
 
-  const checkIfNewGoogleUser = (user: User): boolean => {
-    console.log('=== CHECKING NEW GOOGLE USER ===');
-    console.log('User provider:', user?.app_metadata?.provider);
-    console.log('User created_at:', user?.created_at);
-    console.log('User last_sign_in_at:', user?.last_sign_in_at);
-    console.log('User completed_signup:', user?.user_metadata?.completed_signup);
-    console.log('User has_password:', user?.user_metadata?.has_password);
-    
-    // Check if this is a Google user
-    if (user?.app_metadata?.provider !== 'google') {
-      console.log('Not a Google user, returning false');
-      return false;
-    }
+  const checkUserPasswordStatus = async () => {
+    if (!user) return;
 
-    // Check if user has already completed password creation
-    const hasCompletedSignup = user.user_metadata?.completed_signup === true;
-    const hasPassword = user.user_metadata?.has_password === true;
+    console.log('=== CHECKING PASSWORD STATUS ===');
+    console.log('User provider:', user.app_metadata?.provider);
     
-    if (hasCompletedSignup && hasPassword) {
-      console.log('User already has password, returning false');
-      return false;
-    }
-
-    // More robust check for new Google users
-    const createdAt = new Date(user.created_at);
-    const lastSignIn = new Date(user.last_sign_in_at || user.created_at);
-    const timeDifference = Math.abs(lastSignIn.getTime() - createdAt.getTime());
-    const isVeryRecentUser = timeDifference < 10000; // 10 seconds
-    
-    console.log('Time difference (ms):', timeDifference);
-    console.log('Is very recent user:', isVeryRecentUser);
-    console.log('Has completed signup:', hasCompletedSignup);
-    console.log('Has password:', hasPassword);
-    
-    const result = isVeryRecentUser || (!hasCompletedSignup || !hasPassword);
-    console.log('Final result - is new Google user:', result);
-    console.log('=== END CHECK ===');
-    
-    return result;
-  };
-
-  const checkIfNeedsPasswordCreation = (user: User): boolean => {
-    console.log('=== CHECKING PASSWORD CREATION NEED ===');
-    
-    if (user?.app_metadata?.provider !== 'google') {
+    // Se não é usuário do Google, não precisa criar senha
+    if (user.app_metadata?.provider !== 'google') {
       console.log('Not a Google user, no password needed');
-      return false;
+      setNeedsPasswordCreation(false);
+      return;
     }
 
-    const hasPassword = user.user_metadata?.has_password === true;
-    const hasCompletedSignup = user.user_metadata?.completed_signup === true;
+    try {
+      // Usa a função do banco para verificar se tem senha
+      const { data: hasPassword, error } = await supabase.rpc('check_user_has_password');
+      
+      if (error) {
+        console.error('Error checking password status:', error);
+        // Em caso de erro, assume que precisa criar senha por segurança
+        setNeedsPasswordCreation(true);
+        return;
+      }
+
+      console.log('Database says user has password:', hasPassword);
+      
+      // Se é usuário Google e não tem senha, precisa criar
+      const needsPassword = !hasPassword;
+      console.log('User needs to create password:', needsPassword);
+      setNeedsPasswordCreation(needsPassword);
+      
+    } catch (error) {
+      console.error('Unexpected error checking password:', error);
+      setNeedsPasswordCreation(true);
+    }
     
-    console.log('Has password:', hasPassword);
-    console.log('Has completed signup:', hasCompletedSignup);
-    
-    const needsPassword = !hasPassword || !hasCompletedSignup;
-    console.log('Needs password creation:', needsPassword);
     console.log('=== END PASSWORD CHECK ===');
-    
-    return needsPassword;
   };
 
   useEffect(() => {
@@ -99,27 +75,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Session exists:', !!session);
         console.log('User exists:', !!session?.user);
         
+        setSession(session);
+        setUser(session?.user ?? null);
+        
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('User signed in, checking status');
-          const isNewGoogle = checkIfNewGoogleUser(session.user);
-          const needsPassword = checkIfNeedsPasswordCreation(session.user);
-          
-          setIsNewGoogleUser(isNewGoogle);
-          setNeedsPasswordCreation(needsPassword);
-          
-          if (needsPassword) {
-            console.log('User needs to create password - showing modal');
-          } else {
-            console.log('User authentication complete - proceeding normally');
-          }
+          console.log('User signed in, will check password status');
+          // Não chamamos checkUserPasswordStatus aqui para evitar loops
+          // Vamos chamar depois que o estado for atualizado
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out, resetting flags');
-          setIsNewGoogleUser(false);
           setNeedsPasswordCreation(false);
         }
         
-        setSession(session);
-        setUser(session?.user ?? null);
         setLoading(false);
         console.log('=== END AUTH STATE CHANGE ===');
       }
@@ -131,14 +98,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Initial session exists:', !!session);
       console.log('Initial user exists:', !!session?.user);
       
-      if (session?.user) {
-        const isNewGoogle = checkIfNewGoogleUser(session.user);
-        const needsPassword = checkIfNeedsPasswordCreation(session.user);
-        
-        setIsNewGoogleUser(isNewGoogle);
-        setNeedsPasswordCreation(needsPassword);
-      }
-      
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -148,13 +107,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Separar useEffect para verificar senha depois que o user estiver definido
+  useEffect(() => {
+    if (user && !loading) {
+      checkUserPasswordStatus();
+    }
+  }, [user, loading]);
+
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
 
   const signUp = async (email: string, password: string) => {
-    // Always use the Lovable domain for redirect
     const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
     console.log('Sign up redirect URL:', redirectUrl);
     
@@ -170,11 +135,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     console.log('=== GOOGLE LOGIN DEBUG START ===');
-    console.log('Current location:', window.location);
-    console.log('User agent:', navigator.userAgent);
     
     try {
-      // Try the most basic Google OAuth call first
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -203,7 +165,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithMicrosoft = async () => {
-    // Always use the Lovable domain for redirect
     const redirectUrl = 'https://dashkaizen-financeiro.lovable.app/';
     
     const { error } = await supabase.auth.signInWithOAuth({
@@ -217,7 +178,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setIsNewGoogleUser(false);
     setNeedsPasswordCreation(false);
   };
 
@@ -230,10 +190,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithGoogle,
     signInWithMicrosoft,
     signOut,
-    isNewGoogleUser,
-    setIsNewGoogleUser,
     needsPasswordCreation,
     setNeedsPasswordCreation,
+    checkUserPasswordStatus,
   };
 
   return (

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
 import { Eye, EyeOff, Lock, Shield, CheckCircle, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -80,28 +79,31 @@ export const GooglePasswordModal = ({ isOpen, userEmail, onComplete }: GooglePas
     setLoading(true);
 
     try {
-      console.log('Updating user metadata with password completion flag');
+      console.log('Setting password for Google user');
       
-      // Marca que o usuário completou a criação da senha
-      const { error: updateError } = await supabase.auth.updateUser({
+      // Define a senha real para o usuário (isso vai atualizar o encrypted_password)
+      const { error: passwordError } = await supabase.auth.updateUser({
+        password: password,
         data: { 
-          completed_signup: true,
-          has_password: true,
+          password_set_via_modal: true,
           password_created_at: new Date().toISOString()
         }
       });
 
-      if (updateError) {
-        console.error('Error updating user metadata:', updateError);
+      if (passwordError) {
+        console.error('Error setting password:', passwordError);
         toast({
-          title: "Erro ao salvar configurações",
-          description: updateError.message,
+          title: "Erro ao definir senha",
+          description: passwordError.message,
           variant: "destructive",
         });
         return;
       }
 
-      console.log('User metadata updated successfully');
+      console.log('Password set successfully');
+      
+      // Pequeno delay para garantir que o banco foi atualizado
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
         title: "Senha criada com sucesso!",
@@ -124,21 +126,25 @@ export const GooglePasswordModal = ({ isOpen, userEmail, onComplete }: GooglePas
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700 text-white">
+    <Dialog open={isOpen} onOpenChange={() => {}} modal={true}>
+      <DialogContent 
+        className="sm:max-w-md bg-slate-800 border-slate-700 text-white"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
-              <Shield className="w-8 h-8 text-blue-400" />
+            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center">
+              <Shield className="w-8 h-8 text-red-400" />
             </div>
           </div>
           
-          <DialogTitle className="text-xl font-bold">
-            Crie uma senha segura
+          <DialogTitle className="text-xl font-bold text-red-400">
+            ⚠️ SENHA OBRIGATÓRIA ⚠️
           </DialogTitle>
           
-          <p className="text-slate-400 text-sm">
-            Para garantir a segurança da sua conta Google, é necessário criar uma senha forte.
+          <p className="text-slate-300 text-sm font-medium">
+            Por questões de segurança, você DEVE criar uma senha antes de continuar.
           </p>
 
           <div className="flex items-center gap-2 text-sm text-slate-300 bg-slate-700/50 px-4 py-2 rounded-lg">
@@ -159,7 +165,7 @@ export const GooglePasswordModal = ({ isOpen, userEmail, onComplete }: GooglePas
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 pr-12 rounded-xl"
+                className="bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition-all duration-200 h-12 pr-12 rounded-xl"
                 placeholder="Digite sua nova senha"
               />
               <button 
@@ -220,7 +226,7 @@ export const GooglePasswordModal = ({ isOpen, userEmail, onComplete }: GooglePas
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-200 h-12 pr-12 rounded-xl"
+                className="bg-slate-700/60 border-slate-600/40 text-white placeholder:text-slate-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition-all duration-200 h-12 pr-12 rounded-xl"
                 placeholder="Confirme sua senha"
               />
               <button 
@@ -241,16 +247,16 @@ export const GooglePasswordModal = ({ isOpen, userEmail, onComplete }: GooglePas
 
           <Button 
             type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 h-12 text-sm transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl transform hover:scale-[1.02]" 
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 h-12 text-sm transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl transform hover:scale-[1.02]" 
             disabled={loading || !isPasswordValid || password !== confirmPassword}
           >
-            {loading ? "Criando senha..." : "Criar senha segura"}
+            {loading ? "Criando senha..." : "🔒 CRIAR SENHA OBRIGATÓRIA"}
           </Button>
         </form>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-blue-400 pt-2">
+        <div className="flex items-center justify-center gap-2 text-xs text-red-400 pt-2">
           <Shield className="w-4 h-4" />
-          Sua senha será protegida com criptografia avançada
+          Esta etapa é obrigatória por questões de segurança
         </div>
       </DialogContent>
     </Dialog>

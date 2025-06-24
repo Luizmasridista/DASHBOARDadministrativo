@@ -6,40 +6,33 @@ import Dashboard from "@/components/Dashboard";
 import { GooglePasswordModal } from "@/components/auth/GooglePasswordModal";
 
 const Index = () => {
-  const { user, loading, isNewGoogleUser, needsPasswordCreation, setNeedsPasswordCreation, setIsNewGoogleUser } = useAuth();
+  const { user, loading, needsPasswordCreation, setNeedsPasswordCreation } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Index - Auth state:', { 
       user: !!user, 
       loading, 
-      isNewGoogleUser,
       needsPasswordCreation,
-      userProvider: user?.app_metadata?.provider,
-      userCreatedAt: user?.created_at,
-      userLastSignIn: user?.last_sign_in_at,
-      hasPassword: user?.user_metadata?.has_password
+      userProvider: user?.app_metadata?.provider
     });
     
     if (!loading) {
       if (!user) {
         console.log('No user, redirecting to auth');
         navigate("/auth");
-      } else if (isNewGoogleUser && !needsPasswordCreation) {
-        console.log('New Google user but already has password, redirecting to complete signup');
-        navigate("/complete-google-signup");
-      } else if (!needsPasswordCreation) {
-        console.log('User authenticated and has password, showing dashboard');
-      } else {
+      } else if (needsPasswordCreation) {
         console.log('User needs to create password, showing modal');
+        // Modal será mostrado, usuário fica nesta página
+      } else {
+        console.log('User authenticated and ready, showing dashboard');
       }
     }
-  }, [user, loading, isNewGoogleUser, needsPasswordCreation, navigate]);
+  }, [user, loading, needsPasswordCreation, navigate]);
 
-  const handlePasswordCreationComplete = () => {
+  const handlePasswordCreationComplete = async () => {
     console.log('Password creation completed, updating flags');
     setNeedsPasswordCreation(false);
-    setIsNewGoogleUser(false);
   };
 
   if (loading) {
@@ -54,26 +47,20 @@ const Index = () => {
     return null;
   }
 
-  // Se o usuário precisa criar senha, mostra o modal
-  if (needsPasswordCreation && user.email) {
-    return (
-      <>
-        <Dashboard />
+  // Se o usuário precisa criar senha, mostra o modal SOBRE o dashboard
+  // Isso bloqueia totalmente o acesso até que a senha seja criada
+  return (
+    <>
+      <Dashboard />
+      {needsPasswordCreation && user.email && (
         <GooglePasswordModal
           isOpen={needsPasswordCreation}
           userEmail={user.email}
           onComplete={handlePasswordCreationComplete}
         />
-      </>
-    );
-  }
-
-  // Se é um novo usuário do Google mas não precisa criar senha, redireciona
-  if (isNewGoogleUser) {
-    return null;
-  }
-
-  return <Dashboard />;
+      )}
+    </>
+  );
 };
 
 export default Index;
