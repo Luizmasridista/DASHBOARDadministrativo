@@ -125,7 +125,7 @@ export const GooglePasswordModal = ({ isOpen, userEmail, onComplete }: GooglePas
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700 text-white" hideCloseButton>
+      <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700 text-white">
         <DialogHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
