@@ -5,13 +5,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { GoogleSignupCompletion } from "@/components/auth/GoogleSignupCompletion";
 
 const CompleteGoogleSignup = () => {
-  const { user, isNewGoogleUser, needsPasswordCreation } = useAuth();
+  const { user, needsPasswordCreation } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log('=== COMPLETE GOOGLE SIGNUP PAGE ===');
     console.log('User exists:', !!user);
-    console.log('Is new Google user:', isNewGoogleUser);
     console.log('Needs password creation:', needsPasswordCreation);
     console.log('User provider:', user?.app_metadata?.provider);
     console.log('User completed signup before:', user?.user_metadata?.completed_signup);
@@ -24,20 +23,29 @@ const CompleteGoogleSignup = () => {
       return;
     }
     
-    // Se não é um novo usuário do Google ou não está logado, redireciona
-    if (!user || !isNewGoogleUser) {
-      console.log('Redirecting to auth - not a new Google user or no user');
+    // Se não está logado, redireciona para auth
+    if (!user) {
+      console.log('No user found, redirecting to auth');
       navigate("/auth");
-    } else {
-      console.log('Showing Google signup completion form');
+      return;
     }
-  }, [user, isNewGoogleUser, needsPasswordCreation, navigate]);
+    
+    // Se é usuário Google mas não precisa criar senha, redireciona para home
+    if (user && user.app_metadata?.provider === 'google' && !needsPasswordCreation) {
+      console.log('Google user ready, redirecting to home');
+      navigate("/");
+      return;
+    }
+    
+    console.log('Showing Google signup completion form');
+  }, [user, needsPasswordCreation, navigate]);
 
-  // Se não é um novo usuário do Google ou precisa criar senha, não renderiza nada
-  if (!user || !isNewGoogleUser || needsPasswordCreation) {
+  // Se não tem usuário ou precisa criar senha, não renderiza nada (vai redirecionar)
+  if (!user || needsPasswordCreation) {
     return null;
   }
 
+  // Se chegou aqui, é um usuário Google que ainda não completou o cadastro
   return <GoogleSignupCompletion />;
 };
 

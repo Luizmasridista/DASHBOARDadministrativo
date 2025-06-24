@@ -17,7 +17,7 @@ export const GoogleSignupCompletion = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user, setIsNewGoogleUser } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -80,9 +80,6 @@ export const GoogleSignupCompletion = () => {
       }
 
       console.log('User metadata updated successfully');
-      
-      // Mark as no longer a new Google user
-      setIsNewGoogleUser(false);
       
       toast({
         title: "Cadastro completado!",
