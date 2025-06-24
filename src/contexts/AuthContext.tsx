@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +13,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   isNewGoogleUser: boolean;
   setIsNewGoogleUser: (value: boolean) => void;
+  needsPasswordCreation: boolean;
+  setNeedsPasswordCreation: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,14 +24,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isNewGoogleUser, setIsNewGoogleUser] = useState(false);
+  const [needsPasswordCreation, setNeedsPasswordCreation] = useState(false);
 
   const checkIfNewGoogleUser = (user: User): boolean => {
     console.log('=== CHECKING NEW GOOGLE USER ===');
     console.log('User provider:', user?.app_metadata?.provider);
     console.log('User created_at:', user?.created_at);
     console.log('User last_sign_in_at:', user?.last_sign_in_at);
-    console.log('User email_confirmed_at:', user?.email_confirmed_at);
-    console.log('User phone_confirmed_at:', user?.phone_confirmed_at);
+    console.log('User completed_signup:', user?.user_metadata?.completed_signup);
+    console.log('User has_password:', user?.user_metadata?.has_password);
     
     // Check if this is a Google user
     if (user?.app_metadata?.provider !== 'google') {
@@ -38,8 +40,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
+    // Check if user has already completed password creation
+    const hasCompletedSignup = user.user_metadata?.completed_signup === true;
+    const hasPassword = user.user_metadata?.has_password === true;
+    
+    if (hasCompletedSignup && hasPassword) {
+      console.log('User already has password, returning false');
+      return false;
+    }
+
     // More robust check for new Google users
-    // If created_at and last_sign_in_at are very close (within 10 seconds), it's likely a new user
     const createdAt = new Date(user.created_at);
     const lastSignIn = new Date(user.last_sign_in_at || user.created_at);
     const timeDifference = Math.abs(lastSignIn.getTime() - createdAt.getTime());
@@ -47,20 +57,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     console.log('Time difference (ms):', timeDifference);
     console.log('Is very recent user:', isVeryRecentUser);
-    
-    // Additional check: if email is not confirmed for Google users, they might be new
-    const emailNotConfirmed = !user.email_confirmed_at;
-    console.log('Email not confirmed:', emailNotConfirmed);
-    
-    // Check if user has user_metadata indicating they completed signup before
-    const hasCompletedSignup = user.user_metadata?.completed_signup === true;
     console.log('Has completed signup:', hasCompletedSignup);
+    console.log('Has password:', hasPassword);
     
-    const result = isVeryRecentUser && !hasCompletedSignup;
+    const result = isVeryRecentUser || (!hasCompletedSignup || !hasPassword);
     console.log('Final result - is new Google user:', result);
     console.log('=== END CHECK ===');
     
     return result;
+  };
+
+  const checkIfNeedsPasswordCreation = (user: User): boolean => {
+    console.log('=== CHECKING PASSWORD CREATION NEED ===');
+    
+    if (user?.app_metadata?.provider !== 'google') {
+      console.log('Not a Google user, no password needed');
+      return false;
+    }
+
+    const hasPassword = user.user_metadata?.has_password === true;
+    const hasCompletedSignup = user.user_metadata?.completed_signup === true;
+    
+    console.log('Has password:', hasPassword);
+    console.log('Has completed signup:', hasCompletedSignup);
+    
+    const needsPassword = !hasPassword || !hasCompletedSignup;
+    console.log('Needs password creation:', needsPassword);
+    console.log('=== END PASSWORD CHECK ===');
+    
+    return needsPassword;
   };
 
   useEffect(() => {
@@ -75,18 +100,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('User exists:', !!session?.user);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('User signed in, checking if new Google user');
+          console.log('User signed in, checking status');
           const isNewGoogle = checkIfNewGoogleUser(session.user);
-          setIsNewGoogleUser(isNewGoogle);
+          const needsPassword = checkIfNeedsPasswordCreation(session.user);
           
-          if (isNewGoogle) {
-            console.log('New Google user detected - will redirect to completion');
+          setIsNewGoogleUser(isNewGoogle);
+          setNeedsPasswordCreation(needsPassword);
+          
+          if (needsPassword) {
+            console.log('User needs to create password - showing modal');
           } else {
-            console.log('Existing user or not Google - proceeding normally');
+            console.log('User authentication complete - proceeding normally');
           }
         } else if (event === 'SIGNED_OUT') {
-          console.log('User signed out, resetting new Google user flag');
+          console.log('User signed out, resetting flags');
           setIsNewGoogleUser(false);
+          setNeedsPasswordCreation(false);
         }
         
         setSession(session);
@@ -104,7 +133,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (session?.user) {
         const isNewGoogle = checkIfNewGoogleUser(session.user);
+        const needsPassword = checkIfNeedsPasswordCreation(session.user);
+        
         setIsNewGoogleUser(isNewGoogle);
+        setNeedsPasswordCreation(needsPassword);
       }
       
       setSession(session);
@@ -186,6 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setIsNewGoogleUser(false);
+    setNeedsPasswordCreation(false);
   };
 
   const value = {
@@ -199,6 +232,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     isNewGoogleUser,
     setIsNewGoogleUser,
+    needsPasswordCreation,
+    setNeedsPasswordCreation,
   };
 
   return (
