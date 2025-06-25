@@ -32,6 +32,12 @@ const items = [
     id: "dashboard",
   },
   {
+    title: "Consolidated View",
+    url: "#",
+    icon: Building2,
+    id: "consolidated",
+  },
+  {
     title: "Conectar Planilha",
     url: "#",
     icon: FileSpreadsheet,

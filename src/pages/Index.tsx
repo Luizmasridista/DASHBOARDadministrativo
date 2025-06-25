@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import ConnectSheetWithOAuth from "@/components/ConnectSheetWithOAuth";
+import ConsolidatedView from "@/components/ConsolidatedView";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -54,6 +55,8 @@ const Index = () => {
         return <ConnectSheetWithOAuth />;
       case "settings":
         return <Settings />;
+      case "consolidated":
+        return <ConsolidatedView />;
       default:
         return <Dashboard />;
     }
@@ -67,6 +70,8 @@ const Index = () => {
         return "Conectar Planilha";
       case "settings":
         return "Configurações";
+      case "consolidated":
+        return "Visão Consolidada";
       default:
         return "Painel Financeiro";
     }

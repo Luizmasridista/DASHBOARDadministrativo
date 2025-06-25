@@ -1,4 +1,3 @@
-
 import { SheetData, SheetAPIResponse } from "@/types/sheetData";
 import { processSheetData } from "./sheetDataProcessor";
 
@@ -51,7 +50,8 @@ export const fetchSheetDataWithDefaultAPI = async (sheetId: string): Promise<She
   
   const sheetData: SheetAPIResponse = await response.json();
   if (sheetData.values && sheetData.values.length > 1) {
-    return processSheetData(sheetData.values);
+    // Tag each item with the source sheet id
+    return processSheetData(sheetData.values).map(item => ({ ...item, _sourceSheetId: sheetId }));
   }
   
   return [];

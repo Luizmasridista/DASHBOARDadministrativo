@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
-import { useIntegratedSheetData } from "@/hooks/useIntegratedSheetData";
-import { useSheetName } from "@/hooks/useSheetName";
+import { useAggregatedSheetData } from "@/hooks/useAggregatedSheetData";
 import { useResponsive } from "@/hooks/useResponsive";
 import { FinancialSummaryCards } from "./dashboard/FinancialSummaryCards";
 import { InteractiveChart } from "./dashboard/InteractiveChart";
@@ -26,8 +25,7 @@ import { FloatingAIBot } from "./FloatingAIBot";
 import SpreadsheetTutorial from "./SpreadsheetTutorial";
 
 const Dashboard = () => {
-  const { data, loading, error, refetch, activeConnection } = useIntegratedSheetData();
-  const { sheetName, loading: sheetNameLoading } = useSheetName();
+  const { data, loading, error, refetch, connections } = useAggregatedSheetData();
   const { isMobile, isTablet, deviceType } = useResponsive();
   const [dateFilter, setDateFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -160,14 +158,6 @@ const Dashboard = () => {
               <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-light">
                 Dados reais • Insights estratégicos em tempo real
               </p>
-              {sheetName && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-full">
-                  <FileSpreadsheet className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                  <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">
-                    {sheetNameLoading ? "Carregando..." : sheetName}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
 
@@ -224,21 +214,9 @@ const Dashboard = () => {
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <p className="font-medium text-sm sm:text-base">Dados reais conectados ✅</p>
-                  {sheetName && (
-                    <div className="flex items-center gap-1 text-xs sm:text-sm bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded">
-                      <FileSpreadsheet className="w-3 h-3" />
-                      <span className="font-medium">{sheetNameLoading ? "..." : sheetName}</span>
-                    </div>
-                  )}
                 </div>
                 <p className="text-xs sm:text-sm opacity-80 mt-1">
                   Mostrando {data.length} registros da sua planilha
-                  {activeConnection && (
-                    <span> • Conectado via: {activeConnection.project_name}</span>
-                  )}
-                  {!activeConnection && (
-                    <span> • Usando API padrão</span>
-                  )}
                   • Última atualização: agora
                 </p>
               </div>

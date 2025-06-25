@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { useUserSheets } from './useUserSheets';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SheetData {
   date: string;
@@ -9,6 +11,8 @@ interface SheetData {
 }
 
 export const useSheetDataWithOAuth = () => {
+  const { user } = useAuth();
+  const { sheets, loading: sheetsLoading, error: sheetsError } = useUserSheets();
   const [data, setData] = useState<SheetData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,61 +21,39 @@ export const useSheetDataWithOAuth = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Get sheet configuration from localStorage
-      const savedSheetId = localStorage.getItem('connectedSheetId');
-      const savedRange = localStorage.getItem('connectedSheetRange');
-      
-      if (!savedSheetId) {
+      if (!user) {
         setData([]);
-        setError("Nenhuma planilha conectada. Configure o ID da planilha e intervalo primeiro.");
+        setError('Usuário não autenticado.');
         setLoading(false);
         return;
       }
-
-      // Use the new API key
+      if (!sheets || sheets.length === 0) {
+        setData([]);
+        setError('Nenhuma planilha conectada.');
+        setLoading(false);
+        return;
+      }
+      // Para simplificação, buscar dados da primeira planilha conectada
+      const sheet = sheets[0];
       const API_KEY = "AIzaSyBVFJQDkbI2MAgkS8OPYPGGz3IETLs0GQg";
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${savedSheetId}/values/${savedRange || 'A1:D100'}?key=${API_KEY}`;
-      
-      console.log("Making API request to:", url);
-      
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheet.project_name}/values/${sheet.description || 'A1:D100'}?key=${API_KEY}`;
       const response = await fetch(url);
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("API Error:", { status: response.status, statusText: response.statusText, errorText });
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        throw new Error(`Erro ${response.status}: ${response.statusText}. ${errorText}`);
       }
-      
       const sheetData = await response.json();
-      console.log("Dados recebidos da planilha:", sheetData);
-      
       if (sheetData.values && sheetData.values.length > 1) {
-        // Process the data
         const processedData = processSheetData(sheetData.values);
-        console.log("Dados processados:", processedData);
         setData(processedData);
         setError(null);
-        
-        toast({
-          title: "Sucesso!",
-          description: `${processedData.length} registros carregados da planilha.`,
-        });
       } else {
-        throw new Error("Nenhum dado encontrado na planilha ou formato incorreto");
+        throw new Error('Nenhum dado encontrado na planilha ou formato incorreto');
       }
-      
     } catch (error) {
-      console.error("Erro ao buscar dados da planilha:", error);
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       setError(errorMessage);
       setData([]);
-      
-      toast({
-        title: "Erro ao carregar dados",
-        description: errorMessage,
-        variant: "destructive"
-      });
     } finally {
       setLoading(false);
     }
@@ -135,7 +117,8 @@ export const useSheetDataWithOAuth = () => {
 
   useEffect(() => {
     fetchSheetData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, sheets]);
 
   // Listen for connection changes
   useEffect(() => {
@@ -151,8 +134,8 @@ export const useSheetDataWithOAuth = () => {
 
   return { 
     data, 
-    loading, 
-    error, 
+    loading: loading || sheetsLoading, 
+    error: error || sheetsError, 
     refetch: fetchSheetData 
   };
 };
