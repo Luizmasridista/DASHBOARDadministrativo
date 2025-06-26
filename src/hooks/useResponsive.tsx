@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 interface BreakpointConfig {
   mobile: number;
@@ -16,7 +15,7 @@ const defaultBreakpoints: BreakpointConfig = {
 };
 
 export function useResponsive(customBreakpoints?: Partial<BreakpointConfig>) {
-  const breakpoints = { ...defaultBreakpoints, ...customBreakpoints };
+  const breakpoints = useMemo(() => ({ ...defaultBreakpoints, ...customBreakpoints }), [customBreakpoints]);
   
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,

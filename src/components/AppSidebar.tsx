@@ -32,7 +32,7 @@ const items = [
     id: "dashboard",
   },
   {
-    title: "Consolidated View",
+    title: "Consolidado",
     url: "#",
     icon: Building2,
     id: "consolidated",
