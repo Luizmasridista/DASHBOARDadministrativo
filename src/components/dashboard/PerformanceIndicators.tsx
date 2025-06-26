@@ -1,7 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, DollarSign, Percent, BarChart3, AlertTriangle } from "lucide-react";
 import { useResponsive } from "@/hooks/useResponsive";
+import { motion } from "framer-motion";
 
 interface FinancialItem {
   date: string;
@@ -136,45 +136,49 @@ export function PerformanceIndicators({ data }: PerformanceIndicatorsProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       {indicators.map((indicator, index) => (
-        <Card 
+        <motion.div
           key={indicator.title}
-          className={`relative border-l-4 ${
-            indicator.color === 'green' ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20' :
-            indicator.color === 'yellow' ? 'border-l-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/20' :
-            indicator.color === 'red' ? 'border-l-red-500 bg-red-50/50 dark:bg-red-950/20' :
-            'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
-          } backdrop-blur-sm shadow-lg`}
+          whileHover={{ scale: 1.045, boxShadow: "0 8px 32px 0 rgba(0,0,0,0.10)" }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className={`p-2 rounded-lg ${
-                indicator.color === 'green' ? 'bg-green-100 dark:bg-green-900/30' :
-                indicator.color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
-                indicator.color === 'red' ? 'bg-red-100 dark:bg-red-900/30' :
-                'bg-blue-100 dark:bg-blue-900/30'
-              }`}>
-                <indicator.icon className={`w-4 h-4 ${
-                  indicator.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                  indicator.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' :
-                  indicator.color === 'red' ? 'text-red-600 dark:text-red-400' :
-                  'text-blue-600 dark:text-blue-400'
-                }`} />
+          <Card
+            className={`relative border-l-4 ${
+              indicator.color === 'green' ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20' :
+              indicator.color === 'yellow' ? 'border-l-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/20' :
+              indicator.color === 'red' ? 'border-l-red-500 bg-red-50/50 dark:bg-red-950/20' :
+              'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+            } backdrop-blur-sm shadow-lg`}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div className={`p-2 rounded-lg ${
+                  indicator.color === 'green' ? 'bg-green-100 dark:bg-green-900/30' :
+                  indicator.color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
+                  indicator.color === 'red' ? 'bg-red-100 dark:bg-red-900/30' :
+                  'bg-blue-100 dark:bg-blue-900/30'
+                }`}>
+                  <indicator.icon className={`w-4 h-4 ${
+                    indicator.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                    indicator.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' :
+                    indicator.color === 'red' ? 'text-red-600 dark:text-red-400' :
+                    'text-blue-600 dark:text-blue-400'
+                  }`} />
+                </div>
               </div>
-            </div>
-            
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                {indicator.title}
-              </p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {indicator.value}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {indicator.description}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  {indicator.title}
+                </p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  {indicator.value}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {indicator.description}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       ))}
     </div>
   );

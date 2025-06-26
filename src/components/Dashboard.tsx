@@ -266,10 +266,14 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="projection" className="space-y-6 lg:space-y-8">
-            <CashFlowProjection data={filteredData} />
+            {/*
+              Importante: Para projeções, usamos todos os dados (data),
+              ignorando o filtro de categoria, pois projeções precisam do histórico completo.
+            */}
+            <CashFlowProjection data={data} />
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
-              <InteractiveChart data={filteredData} />
-              <BalanceEvolution data={filteredData} />
+              <InteractiveChart data={data} />
+              <BalanceEvolution data={data} />
             </div>
           </TabsContent>
 

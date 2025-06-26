@@ -1,7 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useResponsive } from "@/hooks/useResponsive";
+import { motion } from "framer-motion";
 
 interface FinancialItem {
   date: string;
@@ -89,35 +89,46 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
       <CardContent className={`${isMobile ? 'p-4' : 'p-6'} pt-0`}>
         <div className={`flex ${isMobile ? 'flex-col' : 'flex-col lg:flex-row'} items-center gap-4 sm:gap-6`}>
           <div className="flex-1 w-full">
-            <ResponsiveContainer width="100%" height={chartHeight}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={outerRadius}
-                  innerRadius={innerRadius}
-                  paddingAngle={2}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.5, type: "spring", stiffness: 80 }}
+            >
+              <ResponsiveContainer width="100%" height={chartHeight}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={outerRadius}
+                    innerRadius={innerRadius}
+                    paddingAngle={2}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </motion.div>
           </div>
           
           <div className={`flex-1 space-y-2 sm:space-y-3 ${isMobile ? 'max-h-60' : 'max-h-80'} overflow-y-auto w-full`}>
             {pieData.map((entry, index) => {
               const percentage = ((entry.value / totalReceitas) * 100).toFixed(1);
               return (
-                <div key={entry.name} className={`flex items-center justify-between ${isMobile ? 'p-2' : 'p-3'} rounded-lg bg-gray-50 dark:bg-gray-700/50`}>
+                <motion.div
+                  key={entry.name}
+                  whileHover={{ scale: 1.04, boxShadow: "0 4px 16px 0 rgba(0,0,0,0.08)" }}
+                  transition={{ type: "spring", stiffness: 200, damping: 18 }}
+                  className={`flex items-center justify-between ${isMobile ? 'p-2' : 'p-3'} rounded-lg bg-gray-50 dark:bg-gray-700/50`}
+                >
                   <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                     <div 
                       className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} rounded-full flex-shrink-0`}
@@ -135,7 +146,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                       {percentage}%
                     </p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>

@@ -8,6 +8,7 @@ import {
   FileSpreadsheet,
   Building2,
 } from "lucide-react"
+import { motion } from "framer-motion"
 
 import {
   Sidebar,
@@ -81,9 +82,19 @@ export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) 
                     isActive={activeSection === item.id}
                     onClick={() => onSectionChange(item.id)}
                   >
-                    <button className="w-full flex items-center space-x-3">
-                      <item.icon />
-                      <span>{item.title}</span>
+                    <button className="w-full flex items-center space-x-3 relative overflow-hidden">
+                      {activeSection === item.id && (
+                        <motion.div
+                          layoutId="sidebar-active-bg"
+                          className="absolute inset-0 bg-blue-100 dark:bg-blue-900/40 rounded-md z-0"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                        />
+                      )}
+                      <item.icon className="relative z-10" />
+                      <span className="relative z-10">{item.title}</span>
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

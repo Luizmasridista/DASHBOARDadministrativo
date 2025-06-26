@@ -18,41 +18,51 @@ export function CashFlowProjection({ data }: CashFlowProjectionProps) {
 
   const generateProjection = () => {
     // Calcular tendências baseadas nos dados históricos
-    const last3Months = data.slice(-3);
-    
-    const avgReceita = last3Months.reduce((sum, item) => sum + item.receita, 0) / last3Months.length;
-    const avgDespesa = last3Months.reduce((sum, item) => sum + item.despesa, 0) / last3Months.length;
-    
-    // Calcular taxa de crescimento
-    const receitaGrowth = last3Months.length >= 2 ? 
-      (last3Months[last3Months.length - 1].receita - last3Months[0].receita) / last3Months[0].receita / 2 : 0;
-    
-    const despesaGrowth = last3Months.length >= 2 ?
-      (last3Months[last3Months.length - 1].despesa - last3Months[0].despesa) / last3Months[0].despesa / 2 : 0;
+    const last3Months = data.slice(-3).filter(item => typeof item.receita === 'number' && typeof item.despesa === 'number');
+    if (last3Months.length === 0) return [];
+
+    const avgReceita = last3Months.reduce((sum, item) => sum + (item.receita || 0), 0) / last3Months.length;
+    const avgDespesa = last3Months.reduce((sum, item) => sum + (item.despesa || 0), 0) / last3Months.length;
+
+    // Se médias não são positivas, não projetar
+    if (avgReceita <= 0 || avgDespesa <= 0) return [];
+
+    // Calcular taxa de crescimento e limitar
+    let receitaGrowth = 0;
+    let despesaGrowth = 0;
+    if (last3Months.length >= 2) {
+      const receita0 = last3Months[0].receita || 1;
+      const receitaN = last3Months[last3Months.length - 1].receita || 1;
+      receitaGrowth = receita0 !== 0 ? (receitaN - receita0) / Math.abs(receita0) / 2 : 0;
+      receitaGrowth = Math.max(-0.9, Math.min(receitaGrowth, 1.0));
+      const despesa0 = last3Months[0].despesa || 1;
+      const despesaN = last3Months[last3Months.length - 1].despesa || 1;
+      despesaGrowth = despesa0 !== 0 ? (despesaN - despesa0) / Math.abs(despesa0) / 2 : 0;
+      despesaGrowth = Math.max(-0.9, Math.min(despesaGrowth, 1.0));
+    }
 
     // Calcular saldo acumulado atual
-    const currentBalance = data.reduce((sum, item) => sum + item.receita - item.despesa, 0);
+    const currentBalance = data.reduce((sum, item) => sum + (item.receita || 0) - (item.despesa || 0), 0);
 
     const projection = [];
     let runningBalance = currentBalance;
 
     // Gerar projeção para os próximos 6 meses
     for (let i = 1; i <= 6; i++) {
-      const projectedReceita = avgReceita * (1 + receitaGrowth) ** i;
-      const projectedDespesa = avgDespesa * (1 + despesaGrowth) ** i;
+      const projectedReceita = isFinite(avgReceita) ? avgReceita * Math.pow(1 + receitaGrowth, i) : 0;
+      const projectedDespesa = isFinite(avgDespesa) ? avgDespesa * Math.pow(1 + despesaGrowth, i) : 0;
       const monthlyFlow = projectedReceita - projectedDespesa;
-      
       runningBalance += monthlyFlow;
 
       const currentDate = new Date();
       currentDate.setMonth(currentDate.getMonth() + i);
-      
+
       projection.push({
         date: `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
-        receita: projectedReceita,
-        despesa: projectedDespesa,
-        saldoAcumulado: runningBalance,
-        fluxoMensal: monthlyFlow,
+        receita: Number.isFinite(projectedReceita) ? Number(projectedReceita.toFixed(2)) : 0,
+        despesa: Number.isFinite(projectedDespesa) ? Number(projectedDespesa.toFixed(2)) : 0,
+        saldoAcumulado: Number.isFinite(runningBalance) ? Number(runningBalance.toFixed(2)) : 0,
+        fluxoMensal: Number.isFinite(monthlyFlow) ? Number(monthlyFlow.toFixed(2)) : 0,
         isProjection: true
       });
     }
@@ -60,14 +70,14 @@ export function CashFlowProjection({ data }: CashFlowProjectionProps) {
     return projection;
   };
 
-  const historicalData = data.map((item, index) => {
-    const previousBalance = data.slice(0, index).reduce((sum, prevItem) => sum + prevItem.receita - prevItem.despesa, 0);
+  const historicalData = data.filter(item => typeof item.receita === 'number' && typeof item.despesa === 'number').map((item, index) => {
+    const previousBalance = data.slice(0, index).reduce((sum, prevItem) => sum + (prevItem.receita || 0) - (prevItem.despesa || 0), 0);
     return {
       date: item.date,
-      receita: item.receita,
-      despesa: item.despesa,
-      saldoAcumulado: previousBalance + item.receita - item.despesa,
-      fluxoMensal: item.receita - item.despesa,
+      receita: item.receita || 0,
+      despesa: item.despesa || 0,
+      saldoAcumulado: previousBalance + (item.receita || 0) - (item.despesa || 0),
+      fluxoMensal: (item.receita || 0) - (item.despesa || 0),
       isProjection: false
     };
   });
@@ -126,55 +136,61 @@ export function CashFlowProjection({ data }: CashFlowProjectionProps) {
       </CardHeader>
       
       <CardContent>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={combinedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-              <XAxis 
-                dataKey="date" 
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis 
-                tickFormatter={(value) => isMobile ? `${(value / 1000).toFixed(0)}k` : formatCurrency(value)}
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              
-              {/* Linha de referência para break-even */}
-              <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="5 5" />
-              
-              {/* Linha do saldo acumulado */}
-              <Line
-                type="monotone"
-                dataKey="saldoAcumulado"
-                stroke="#3b82f6"
-                strokeWidth={3}
-                dot={(props) => {
-                  const { payload } = props;
-                  return (
-                    <circle
-                      cx={props.cx}
-                      cy={props.cy}
-                      r={4}
-                      fill={payload.isProjection ? "#94a3b8" : "#3b82f6"}
-                      stroke={payload.isProjection ? "#64748b" : "#1e40af"}
-                      strokeWidth={2}
-                      strokeDasharray={payload.isProjection ? "3 3" : "none"}
-                    />
-                  );
-                }}
-                name="Saldo Acumulado"
-              />
-              
-              <Tooltip content={<CustomTooltip />} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        {combinedData.length < 2 ? (
+          <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400 text-center">
+            Não há dados suficientes ou os dados estão inconsistentes para gerar a projeção. Conecte e atualize sua planilha com pelo menos 2-3 meses de dados válidos e positivos.
+          </div>
+        ) : (
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={combinedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis 
+                  tickFormatter={(value) => isMobile ? `${(value / 1000).toFixed(0)}k` : formatCurrency(value)}
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                
+                {/* Linha de referência para break-even */}
+                <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="5 5" />
+                
+                {/* Linha do saldo acumulado */}
+                <Line
+                  type="monotone"
+                  dataKey="saldoAcumulado"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  dot={(props) => {
+                    const { payload } = props;
+                    return (
+                      <circle
+                        cx={props.cx}
+                        cy={props.cy}
+                        r={4}
+                        fill={payload.isProjection ? "#94a3b8" : "#3b82f6"}
+                        stroke={payload.isProjection ? "#64748b" : "#1e40af"}
+                        strokeWidth={2}
+                        strokeDasharray={payload.isProjection ? "3 3" : "none"}
+                      />
+                    );
+                  }}
+                  name="Saldo Acumulado"
+                />
+                
+                <Tooltip content={<CustomTooltip />} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
         {breakEvenPoint && (
           <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">

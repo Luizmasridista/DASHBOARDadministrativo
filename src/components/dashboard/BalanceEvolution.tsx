@@ -1,7 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 import { useResponsive } from "@/hooks/useResponsive";
+import { motion } from "framer-motion";
 
 interface FinancialItem {
   date: string;
@@ -75,7 +75,12 @@ export function BalanceEvolution({ data }: BalanceEvolutionProps) {
       </CardHeader>
       
       <CardContent>
-        <div className="h-80">
+        <motion.div
+          className="h-80"
+          initial={{ opacity: 0, scale: 0.97, y: 24 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 80 }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={balanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <defs>
@@ -110,7 +115,7 @@ export function BalanceEvolution({ data }: BalanceEvolutionProps) {
               />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
       </CardContent>
     </Card>
   );

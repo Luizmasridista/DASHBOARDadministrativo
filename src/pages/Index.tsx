@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import ConnectSheetWithOAuth from "@/components/ConnectSheetWithOAuth";
 import ConsolidatedView from "@/components/ConsolidatedView";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -93,7 +94,17 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-            {renderContent()}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -24 }}
+                transition={{ duration: 0.35 }}
+              >
+                {renderContent()}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </SidebarInset>
       </div>
