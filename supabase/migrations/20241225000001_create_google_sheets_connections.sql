@@ -1,4 +1,3 @@
-
 -- Create enum for connection status
 DO $$ BEGIN
     CREATE TYPE connection_status AS ENUM ('active', 'expired', 'revoked', 'error');
@@ -59,12 +58,15 @@ CREATE INDEX IF NOT EXISTS idx_google_sheets_connections_status ON google_sheets
 
 -- Create trigger function for updating updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = pg_catalog, public
+AS $$
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$;
 
 -- Drop existing trigger if it exists
 DROP TRIGGER IF EXISTS update_google_sheets_connections_updated_at ON google_sheets_connections;
